@@ -145,11 +145,11 @@ void gpsPoseCallback(geometry_msgs::PoseStamped pose_in)
 {
 	pose = pose_in;
 
-	cout<<"x: "<<int(pose_in.pose.position.x/100)<<"\ty: "<<int(pose_in.pose.position.y/100)<<endl;
+	cout<<"x: "<<int(pose_in.pose.position.x/50)<<"\ty: "<<int(pose_in.pose.position.y/50)<<endl;
 
 
-	int grid_x = int(pose_in.pose.position.x/100);
-	int grid_y = int(pose_in.pose.position.y/100);
+	int grid_x = int(pose_in.pose.position.x/50);
+	int grid_y = int(pose_in.pose.position.y/50);
 
 
 
@@ -169,11 +169,13 @@ void gpsPoseCallback(geometry_msgs::PoseStamped pose_in)
 			cout<<ss.str();
 
 			if (pcl::io::loadPCDFile<pcl::PointXYZRGB> ("/home/wlh/point_map/"+ss.str()+".pcd", *cloud_old) == -1)
-				pcl::io::savePCDFileASCII ("/home/wlh/point_map/"+ss.str()+".pcd", *cloud_out);
+				if(!cloud_out->empty())
+					pcl::io::savePCDFileASCII ("/home/wlh/point_map/"+ss.str()+".pcd", *cloud_out);
 			else
 			{
 				*cloud_out += *cloud_old;
-				pcl::io::savePCDFileASCII ("/home/wlh/point_map/"+ss.str()+".pcd", *cloud_out);
+				if(!cloud_out->empty())
+					pcl::io::savePCDFileASCII ("/home/wlh/point_map/"+ss.str()+".pcd", *cloud_out);
 			}
 
 			cloud_out->clear();

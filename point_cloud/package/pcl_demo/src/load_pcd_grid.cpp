@@ -31,10 +31,13 @@
 #include<deque>
 using namespace std;
 
-pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_in(new pcl::PointCloud<pcl::PointXYZRGB>);
+pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_sum(new pcl::PointCloud<pcl::PointXYZRGB>);
 int cnt = 2;
 ros::Publisher pub_cloud;
 ros::Publisher pub_map_marker;
+
+int last_grid_x = 0;
+int last_grid_y = 0;
 
 
 void init_markers(visualization_msgs::Marker& marker)
@@ -93,10 +96,9 @@ void configCallback(pcl_demo::gridConfig &config, uint32_t level)
 	std::stringstream ss;
 	ss<<config.x<<"_"<<config.y<<".pcd"<<endl;
 
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_in(new pcl::PointCloud<pcl::PointXYZRGB>);
 	if (pcl::io::loadPCDFile<pcl::PointXYZRGB> ("/home/wlh/point_map/"+ss.str()+".pcd", *cloud_in) == -1) //* load the file
-	{
 		std::cout<<"read error\n";
-	}
 
 	add_marker_cloud(marker,cloud_in);
 
@@ -110,26 +112,47 @@ void configCallback(pcl_demo::gridConfig &config, uint32_t level)
 
 void gpsPoseCallback(geometry_msgs::PoseStamped pose_in)
 {
-	int grid_x = int(pose_in.pose.position.x/100);
-	int grid_y = int(pose_in.pose.position.y/100);
+	int grid_x = int(pose_in.pose.position.x/50);
+	int grid_y = int(pose_in.pose.position.y/50);
+
+	if(grid_x ==  last_grid_x && grid_y == last_grid_y)
+	{
+		cloud_sum->header.frame_id = "map";
+		sensor_msgs::PointCloud2 cloud_to_pub;
+		pcl::toROSMsg(*cloud_sum, cloud_to_pub);
+		pub_cloud.publish(cloud_to_pub);
+		return;
+	}
 
 	visualization_msgs::Marker marker;
 	init_markers(marker);
+	cloud_sum->clear();
 
-	std::stringstream ss;
-	ss<<grid_x<<"_"<<grid_y<<".pcd"<<endl;
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_in(new pcl::PointCloud<pcl::PointXYZRGB>);
 
-	if (pcl::io::loadPCDFile<pcl::PointXYZRGB> ("/home/wlh/point_map/"+ss.str()+".pcd", *cloud_in) == -1) //* load the file
-		std::cout<<"read error\n";
+	for(int i=-1; i<=1; i++)
+		for(int j=-1; j<=1; j++)
+		{
+			std::stringstream ss;
+			ss<<grid_x+i<<"_"<<grid_y+j<<".pcd"<<endl;
+			if (pcl::io::loadPCDFile<pcl::PointXYZRGB> ("/home/wlh/point_map/"+ss.str()+".pcd", *cloud_in) == -1)
+				std::cout<<"read error\n";
+			else *cloud_sum += *cloud_in;
+		}
 
-	add_marker_cloud(marker,cloud_in);
 
-	cloud_in->header.frame_id = "map";
+
+	add_marker_cloud(marker,cloud_sum);
+
+	cloud_sum->header.frame_id = "map";
 	sensor_msgs::PointCloud2 cloud_to_pub;
-	pcl::toROSMsg(*cloud_in, cloud_to_pub);
+	pcl::toROSMsg(*cloud_sum, cloud_to_pub);
 	pub_cloud.publish(cloud_to_pub);
 
 	pub_map_marker.publish(marker);
+
+	last_grid_x = grid_x;
+	last_grid_y = grid_y;
 }
 
 int main(int argc, char **argv)
