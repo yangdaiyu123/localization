@@ -1,0 +1,14 @@
+<!-- -->
+<launch>
+  	<node pkg="localization" type="point_cloud_transform" name="point_cloud_transform" output="screen">
+		<param name="rotate_ly" value="0.4"/>
+		<param name="rotate_ry" value="5.65"/>
+		<param name="trans_lx" value="-0.05"/>
+		<param name="trans_ly" value="-0.6"/>
+		<param name="trans_lz" value="0.1"/>
+		<param name="trans_rx" value="-0.05"/>
+		<param name="trans_ry" value="2.7"/>
+		<param name="trans_rz" value="-1.1"/>
+    </node>
+    
+</launch>

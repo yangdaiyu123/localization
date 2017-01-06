@@ -1,0 +1,14 @@
+<!-- -->
+<launch>
+  	<node pkg="tools" type="lidar_calibration" name="lidar_calibration">
+		<param name="front_pitch" value="14.0"/>
+		<param name="front_tx" value="0"/>
+		<param name="front_ty" value="0"/>
+		<param name="front_tzy" value="1.9"/>
+		<param name="rear_pitch" value="15.5"/>
+		<param name="rear_tx" value="-0.8"/>
+		<param name="rear_ty" value="-0.2"/>
+		<param name="rear_tz" value="1.7"/>
+    </node>
+
+</launch>

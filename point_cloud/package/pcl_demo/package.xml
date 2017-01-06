@@ -1,0 +1,20 @@
+<package format="2">
+  <name>pcl_demo</name>
+  <version>0.0.1</version>
+  <description>
+    develop tools
+  </description>
+  <author>WengLihong</author>
+  <maintainer email="wengge987@163.com">WengLihong</maintainer>
+  <license>BSD</license>
+  <url>s</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>message_generation</build_depend>
+  <exec_depend>message_runtime</exec_depend>
+
+  <depend>roscpp</depend>
+  <depend>rospy</depend>
+  <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
+</package>
