@@ -49,8 +49,8 @@ void CurbDetection::frontPointCloudCallback(const VPointCloud::ConstPtr &inMsg)
 
 //	front_curb.header.frame_id = "base_link";
 //	sensor_msgs::PointCloud2 cloud_to_pub;
-//    pcl::toROSMsg(front_curb, cloud_to_pub);
-//    pub_front_curb.publish(cloud_to_pub);
+//  pcl::toROSMsg(front_curb, cloud_to_pub);
+//  pub_front_curb.publish(cloud_to_pub);
 
 
 
@@ -61,9 +61,28 @@ void CurbDetection::frontPointCloudCallback(const VPointCloud::ConstPtr &inMsg)
 	filter::remove_invalid_points(head_left_curb);
 	filter::dist_filter(head_right_curb);
 	filter::dist_filter(head_left_curb);
+
+	Eigen::VectorXf model_l,model_r;
+
     pcl::PointCloud<pcl::PointXYZ> inlier_points1 = filter::ransac_fit_line(head_right_curb);
     pcl::PointCloud<pcl::PointXYZ> inlier_points2 = filter::ransac_fit_line(head_left_curb);
     pcl::PointCloud<pcl::PointXYZ> front_curb = inlier_points1 + inlier_points2;
+
+    pcl::PointCloud<PointXYZO> orientation_curb;
+    PointXYZO po;
+
+//    cout << model_l[0] << " " << model_l[1] << " " << model_l[2] << " "
+//		 << model_l[3] << " " << model_l[4] << " " << model_l[5] << endl;
+
+//    for(int i=0; i<inlier_points1.points.size(); i++)
+//    {
+//		po.x = inlier_points1.points[i].x;
+//		po.y = inlier_points1.points[i].y;
+//		po.z = inlier_points1.points[i].z;
+//		po.orientation =
+//    	orientation_curb
+//    }
+
     markPoints(color_cloud, inlier_points1, 2);
     markPoints(color_cloud, inlier_points2, 3);
 

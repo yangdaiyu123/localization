@@ -32,6 +32,7 @@
 #include <pcl_ros/point_cloud.h>
 #include <point_types.h>
 #include <cloud_operation.h>
+#include <point_xyzo.h>
 
 
 #include <string>
