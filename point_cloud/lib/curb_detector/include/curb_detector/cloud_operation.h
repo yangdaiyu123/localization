@@ -702,22 +702,43 @@ pcl::PointCloud<pcl::PointXYZ> ransac_fit_line(pcl::PointCloud<pcl::PointXYZ> ed
 	Line.computeModel();
 	Line.getInliers(inliers_idx);
 
+	for(int i=0; i<inliers_idx.size(); i++)
+		inlier_points.push_back(points_set[inliers_idx[i]]);
+
+	return	inlier_points;
+}
+
+pcl::PointCloud<pcl::PointXYZ> ransac_fit_line(pcl::PointCloud<pcl::PointXYZ> edges, Eigen::VectorXf& model_coefficients)
+{
+	std::vector<pcl::PointXYZ> points_set = cloudToArray(edges);
+	pcl::PointCloud<pcl::PointXYZ> inlier_points;
+
+	if(points_set.size()<40){inlier_points.clear();return inlier_points;}
+
+	std::vector<int> inliers_idx;
+	Ransac_Line Line;
+	Line.setInputCloud(points_set);
+	Line.setDistanceThreshold(0.3);
+	Line.computeModel();
+	Line.getInliers(inliers_idx);
+
+	Line.getModelCoefficients(model_coefficients);
 
 
 	for(int i=0; i<inliers_idx.size(); i++)
 		inlier_points.push_back(points_set[inliers_idx[i]]);
 
 	return	inlier_points;
+}
+
+
 }//namespace filter
 
 
+
+
+
 }//namespace cloud_operation
-
-
-
-
-
-}
 
 
 #endif
