@@ -48,6 +48,11 @@ set (BINNAME4 load_pcd_section)
 set (BINNAME5 write_pcd_by_odom)
 set (BINNAME6 write_pcd_by_grid)
 set (BINNAME7 load_pcd_grid)
+set (BINNAME8 icp_demo)
+set (BINNAME9 show_pcd)
+set (BINNAME10 show_pcd_transform)
+set (BINNAME11 icp_demo2)
+set (BINNAME12 ndt_demo2)
 
 ## Set the source files to use with the executable.
 set (SRCS1 ${SRCS1} src/write_pcd.cpp)
@@ -57,6 +62,11 @@ set (SRCS4 ${SRCS4} src/load_pcd_section.cpp)
 set (SRCS5 ${SRCS5} src/write_pcd_by_odom.cpp)
 set (SRCS6 ${SRCS6} src/write_pcd_by_grid.cpp)
 set (SRCS7 ${SRCS7} src/load_pcd_grid.cpp)
+set (SRCS8 ${SRCS8} src/icp_demo.cpp)
+set (SRCS9 ${SRCS9} src/show_pcd.cpp)
+set (SRCS10 ${SRCS10} src/show_pcd_transform.cpp)
+set (SRCS11 ${SRCS11} src/icp_demo2.cpp)
+set (SRCS12 ${SRCS12} src/ndt_demo2.cpp)
 
 # Build the executable that will be used to run this node.
 add_executable (${BINNAME1} ${SRCS1})
@@ -86,6 +96,26 @@ target_link_libraries(${BINNAME6} ${PCL_LIBRARIES})
 add_executable (${BINNAME7} ${SRCS7})
 target_link_libraries(${BINNAME7} ${catkin_LIBRARIES})
 target_link_libraries(${BINNAME7} ${PCL_LIBRARIES})
+
+add_executable (${BINNAME8} ${SRCS8})
+target_link_libraries(${BINNAME8} ${catkin_LIBRARIES})
+target_link_libraries(${BINNAME8} ${PCL_LIBRARIES})
+
+add_executable (${BINNAME9} ${SRCS9})
+target_link_libraries(${BINNAME9} ${catkin_LIBRARIES})
+target_link_libraries(${BINNAME9} ${PCL_LIBRARIES})
+
+add_executable (${BINNAME10} ${SRCS10})
+target_link_libraries(${BINNAME10} ${catkin_LIBRARIES})
+target_link_libraries(${BINNAME10} ${PCL_LIBRARIES})
+
+add_executable (${BINNAME11} ${SRCS11})
+target_link_libraries(${BINNAME11} ${catkin_LIBRARIES})
+target_link_libraries(${BINNAME11} ${PCL_LIBRARIES})
+
+add_executable (${BINNAME12} ${SRCS12})
+target_link_libraries(${BINNAME12} ${catkin_LIBRARIES})
+target_link_libraries(${BINNAME12} ${PCL_LIBRARIES})
 
 #install(DIRECTORY include/${PROJECT_NAME}/
 #  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}

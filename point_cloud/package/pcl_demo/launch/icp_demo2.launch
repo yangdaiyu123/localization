@@ -1,0 +1,29 @@
+<!-- -->
+<launch>
+  	<node pkg="pcl_demo" type="icp_demo2" name="icp_demo2" output="screen">
+		<param name="pcd_file" value="/home/wlh/pcd/826_61.pcd"/>
+		<param name="tx" value="0.2"/>
+		<param name="ty" value="0.2"/>
+		<param name="tz" value="0.0"/>
+		<param name="rx" value="0.0"/>
+		<param name="ry" value="0.0"/>
+		<param name="rz" value="0.05"/>
+
+		<param name="init_tx" value="0.0"/>
+		<param name="init_ty" value="0.0"/>
+		<param name="init_tz" value="0.0"/>
+		<param name="init_rx" value="0.0"/>
+		<param name="init_ry" value="0.0"/>
+		<param name="init_rz" value="0.05"/>
+
+		<param name="TransformationEpsilon" value="1e-5"/>
+		<param name="MaxCorrespondenceDistance" value="100.0"/>
+		<param name="EuclideanFitnessEpsilon" value="0.1"/>
+		<param name="MaximumIterations" value="500"/>
+
+		<param name="show_src" value="true"/>
+		<param name="show_tgt" value="true"/>
+		<param name="show_reg" value="true"/>
+    </node>
+
+</launch>
