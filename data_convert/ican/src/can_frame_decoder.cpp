@@ -136,9 +136,9 @@ void CanFrameDecoder::chatterCallback(ican::canframe can_msg)
 	case 0x702://摄像头触发
 		trigger_out.data = camera_trigger++;
 		pub_trigger.publish(trigger_out);
-        cout<<"frame_id: "<<std::hex<<id<<"\t"
-	        <<"data_len: "<<len<<"\t"
-	        <<"trigger_cnt: "<<std::oct<<camera_trigger<<endl;
+//        cout<<"frame_id: "<<std::hex<<id<<"\t"
+//	        <<"data_len: "<<len<<"\t"
+//	        <<"trigger_cnt: "<<std::oct<<camera_trigger<<endl;
 	break;
 
 	default:
