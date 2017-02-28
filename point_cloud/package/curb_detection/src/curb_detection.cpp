@@ -62,26 +62,47 @@ void CurbDetection::frontPointCloudCallback(const VPointCloud::ConstPtr &inMsg)
 	filter::dist_filter(head_right_curb);
 	filter::dist_filter(head_left_curb);
 
-	Eigen::VectorXf model_l,model_r;
+	Eigen::VectorXf model_l;
+	Eigen::VectorXf model_r;
 
-    pcl::PointCloud<pcl::PointXYZ> inlier_points1 = filter::ransac_fit_line(head_right_curb);
-    pcl::PointCloud<pcl::PointXYZ> inlier_points2 = filter::ransac_fit_line(head_left_curb);
+    pcl::PointCloud<pcl::PointXYZ> inlier_points1 = filter::ransac_fit_line(head_right_curb,model_r);
+    pcl::PointCloud<pcl::PointXYZ> inlier_points2 = filter::ransac_fit_line(head_left_curb,model_l);
     pcl::PointCloud<pcl::PointXYZ> front_curb = inlier_points1 + inlier_points2;
 
     pcl::PointCloud<PointXYZO> orientation_curb;
     PointXYZO po;
+    double orientation;
 
-//    cout << model_l[0] << " " << model_l[1] << " " << model_l[2] << " "
-//		 << model_l[3] << " " << model_l[4] << " " << model_l[5] << endl;
+	cout<<"model size: "<<model_l.size()<<endl;
+    cout << model_l << endl;
 
-//    for(int i=0; i<inlier_points1.points.size(); i++)
-//    {
-//		po.x = inlier_points1.points[i].x;
-//		po.y = inlier_points1.points[i].y;
-//		po.z = inlier_points1.points[i].z;
-//		po.orientation =
-//    	orientation_curb
-//    }
+//	model_coefficients中前3个元素表示单位向量的起点，后3个元素代表单位向量在3个方向的分量
+	if(!inlier_points1.empty())
+	{
+		orientation = abs( acos(model_r[3]) );
+		for(int i=0; i<inlier_points1.points.size(); i++)
+		{
+			po.x = inlier_points1.points[i].x;
+			po.y = inlier_points1.points[i].y;
+			po.z = inlier_points1.points[i].z;
+			po.orientation = orientation;
+			orientation_curb.push_back(po);
+		}
+	}
+
+	if(!inlier_points2.empty())
+	{
+		orientation = abs( acos(model_l[3]) );
+		for(int i=0; i<inlier_points2.points.size(); i++)
+		{
+			po.x = inlier_points2.points[i].x;
+			po.y = inlier_points2.points[i].y;
+			po.z = inlier_points2.points[i].z;
+			po.orientation = orientation;
+			orientation_curb.push_back(po);
+		}
+	}
+
 
     markPoints(color_cloud, inlier_points1, 2);
     markPoints(color_cloud, inlier_points2, 3);
@@ -89,12 +110,16 @@ void CurbDetection::frontPointCloudCallback(const VPointCloud::ConstPtr &inMsg)
 	if(!inlier_points1.empty())	right_curb_dist = abs(inlier_points1.points[0].y+2);
     if(!inlier_points2.empty())	left_curb_dist = abs(inlier_points2.points[0].y+2);
 
-//    MyViewer.showCloud(color_cloud.makeShared(),"cloud");
+    MyViewer.showCloud(color_cloud.makeShared(),"cloud");
 
 	if(front_curb.empty())	return;
 	front_curb.header.frame_id = "base_link";
 	sensor_msgs::PointCloud2 cloud_to_pub;
-    pcl::toROSMsg(front_curb, cloud_to_pub);
+//    pcl::toROSMsg(front_curb, cloud_to_pub);
+//    pub_front_curb.publish(cloud_to_pub);
+
+    orientation_curb.header.frame_id = "base_link";
+    pcl::toROSMsg(orientation_curb, cloud_to_pub);
     pub_front_curb.publish(cloud_to_pub);
 }
 
@@ -187,8 +212,8 @@ void CurbDetection::topPointCloudCallback(const VPointCloud::ConstPtr &inMsg)
 
 		if(abs(coefficients->values[4])>0.9 && abs(coefficients->values[5])<0.1 && inliers->indices.size()>=20)
 		{
-			cout<< inliers->indices.size ()<<" "<<coefficients->values[0] << " " << coefficients->values[1] << " " << coefficients->values[2] << " "
-			 	<< coefficients->values[3] << " " << coefficients->values[4] << " " << coefficients->values[5] << endl;
+//			cout<< inliers->indices.size ()<<" "<<coefficients->values[0] << " " << coefficients->values[1] << " " << coefficients->values[2] << " "
+//			 	<< coefficients->values[3] << " " << coefficients->values[4] << " " << coefficients->values[5] << endl;
 			pcl::ExtractIndices<pcl::PointXYZI> extract;
 			extract.setInputCloud(cloud_array[i].makeShared());
 			extract.setIndices(inliers);
@@ -214,7 +239,7 @@ void CurbDetection::topPointCloudCallback(const VPointCloud::ConstPtr &inMsg)
 		pcl::toROSMsg(sign_points, cloud_to_pub);
 		pub_sign.publish(cloud_to_pub);
 	}
-	MyViewer.showCloud(color_cloud.makeShared(),"cloud");
+//	MyViewer.showCloud(color_cloud.makeShared(),"cloud");
 }
 
 int main(int argc, char **argv)
