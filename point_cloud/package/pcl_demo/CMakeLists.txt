@@ -54,6 +54,8 @@ set (BINNAME10 show_pcd_transform)
 set (BINNAME11 icp_demo2)
 set (BINNAME12 ndt_demo2)
 set (BINNAME13 point_xyzo)
+set (BINNAME14 icp_demo3)
+set (BINNAME15 write_oriented_pcd)
 
 ## Set the source files to use with the executable.
 set (SRCS1 ${SRCS1} src/write_pcd.cpp)
@@ -69,6 +71,8 @@ set (SRCS10 ${SRCS10} src/show_pcd_transform.cpp)
 set (SRCS11 ${SRCS11} src/icp_demo2.cpp)
 set (SRCS12 ${SRCS12} src/ndt_demo2.cpp)
 set (SRCS13 ${SRCS13} src/point_xyzo.cpp)
+set (SRCS14 ${SRCS14} src/icp_demo3.cpp)
+set (SRCS15 ${SRCS15} src/write_oriented_pcd.cpp)
 
 # Build the executable that will be used to run this node.
 add_executable (${BINNAME1} ${SRCS1})
@@ -122,6 +126,14 @@ target_link_libraries(${BINNAME12} ${PCL_LIBRARIES})
 add_executable (${BINNAME13} ${SRCS13})
 target_link_libraries(${BINNAME13} ${catkin_LIBRARIES})
 target_link_libraries(${BINNAME13} ${PCL_LIBRARIES})
+
+add_executable (${BINNAME14} ${SRCS14})
+target_link_libraries(${BINNAME14} ${catkin_LIBRARIES})
+target_link_libraries(${BINNAME14} ${PCL_LIBRARIES})
+
+add_executable (${BINNAME15} ${SRCS15})
+target_link_libraries(${BINNAME15} ${catkin_LIBRARIES})
+target_link_libraries(${BINNAME15} ${PCL_LIBRARIES})
 
 #install(DIRECTORY include/${PROJECT_NAME}/
 #  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}

@@ -14,4 +14,9 @@ POINT_CLOUD_REGISTER_POINT_STRUCT(PointXYZO,
                                   (float, z, z)
                                   (float, orientation, orientation))
 
+typedef PointXYZO OPoint;
+typedef pcl::PointCloud<OPoint> OPointCloud;
+
+
+
 #endif                                  

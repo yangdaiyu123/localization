@@ -25,7 +25,7 @@
 #include "tf/transform_datatypes.h"
 #include <sstream>
 
-pcl::visualization::PCLVisualizer p;
+//pcl::visualization::PCLVisualizer p;
 
 int main(int argc, char **argv)
 {
@@ -116,16 +116,16 @@ int main(int argc, char **argv)
 
 		// display
 		//pcl::visualization::PCLVisualizer p;
-		pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> src_r_h(cloud_source_registration, 255, 0, 0);
-		pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> tgt_h (cloud_trans, 0, 255, 0);
-		pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> src_h (cloud_source, 0, 0, 255);
-		p.addPointCloud(cloud_source_registration, src_r_h,"source_r"+s1.str());
-		p.addPointCloud(cloud_trans, tgt_h, "target"+s1.str());
-		p.addPointCloud(cloud_source, src_h, "source"+s1.str());
-		p.removePointCloud ("source_r"+s0.str());
-		p.removePointCloud ("target"+s0.str());
-		p.removePointCloud ("source"+s0.str());
-		p.spinOnce(100);
+//		pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> src_r_h(cloud_source_registration, 255, 0, 0);
+//		pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> tgt_h (cloud_trans, 0, 255, 0);
+//		pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> src_h (cloud_source, 0, 0, 255);
+//		p.addPointCloud(cloud_source_registration, src_r_h,"source_r"+s1.str());
+//		p.addPointCloud(cloud_trans, tgt_h, "target"+s1.str());
+//		p.addPointCloud(cloud_source, src_h, "source"+s1.str());
+//		p.removePointCloud ("source_r"+s0.str());
+//		p.removePointCloud ("target"+s0.str());
+//		p.removePointCloud ("source"+s0.str());
+//		p.spinOnce(100);
 	}
 
 
