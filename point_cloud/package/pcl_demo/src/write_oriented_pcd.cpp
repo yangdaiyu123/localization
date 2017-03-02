@@ -74,6 +74,11 @@ void frontCurbCloudCallback(const OPointCloud::ConstPtr &cloud_in)
             tf::Vector3 pt(cloud_in->points[i].x, cloud_in->points[i].y, cloud_in->points[i].z);
             tf::Vector3 converted = transform1 * pt;
 
+			double yaw, pitch, roll;
+			transform1.getBasis().getRPY(roll, pitch, yaw);
+			std::cout<< "in RPY (radian) [" <<  roll << ", " << pitch << ", " << yaw << "]" << std::endl
+			<< "in RPY (degree) [" <<  roll*180.0/M_PI << ", " << pitch*180.0/M_PI << ", " << yaw*180.0/M_PI << "]" << std::endl;
+
             PointXYZO point_in_map;
             point_in_map.x = converted.x();
             point_in_map.y = converted.y();
@@ -84,7 +89,7 @@ void frontCurbCloudCallback(const OPointCloud::ConstPtr &cloud_in)
         }
         std::stringstream ss;
 		ss<<cnt++;
-        pcl::io::savePCDFileASCII ("/home/wlh/oriented_point_map/"+ss.str()+".pcd", *cloud_out);
+//        pcl::io::savePCDFileASCII ("/home/wlh/oriented_point_map/"+ss.str()+".pcd", *cloud_out);
     }
     catch (tf::TransformException ex) {
         ROS_INFO("%s", ex.what());
