@@ -4,7 +4,7 @@
 using namespace std;
 using namespace cloud_operation;
 
-pcl::visualization::CloudViewer MyViewer("cloud");
+//pcl::visualization::CloudViewer MyViewer("cloud");
 
 CurbDetection::CurbDetection()
 {
@@ -79,17 +79,6 @@ void CurbDetection::frontPointCloudCallback(const VPointCloud::ConstPtr &inMsg)
 //	model_coefficients中前3个元素表示单位向量的起点，后3个元素代表单位向量在3个方向的分量
 	if(!inlier_points1.empty())
 	{
-		PointXYZO p;
-		for(int i=0; i<50; i++)
-		{
-			p.x = inlier_points1.points[i].x + i/10 * cos(M_PI/6.0);
-			p.y = inlier_points1.points[i].y + i/10 * sin(M_PI/6.0);
-			p.z = inlier_points1.points[i].z;
-			p.orientation = 0.0;
-			orientation_curb.push_back(p);
-		}
-
-
 		orientation = abs( acos(model_r[3]) );
 		for(int i=0; i<inlier_points1.points.size(); i++)
 		{
@@ -103,16 +92,6 @@ void CurbDetection::frontPointCloudCallback(const VPointCloud::ConstPtr &inMsg)
 
 	if(!inlier_points2.empty())
 	{
-		PointXYZO p;
-		for(int i=0; i<50; i++)
-		{
-			p.x = inlier_points2.points[i].x + i/10 * cos(-M_PI/6.0);
-			p.y = inlier_points2.points[i].y + i/10 * sin(-M_PI/6.0);
-			p.z = inlier_points2.points[i].z;
-			p.orientation = 0.0;
-			orientation_curb.push_back(p);
-		}
-
 		orientation = abs( acos(model_l[3]) );
 		for(int i=0; i<inlier_points2.points.size(); i++)
 		{
@@ -131,7 +110,7 @@ void CurbDetection::frontPointCloudCallback(const VPointCloud::ConstPtr &inMsg)
 	if(!inlier_points1.empty())	right_curb_dist = abs(inlier_points1.points[0].y+2);
     if(!inlier_points2.empty())	left_curb_dist = abs(inlier_points2.points[0].y+2);
 
-    MyViewer.showCloud(color_cloud.makeShared(),"cloud");
+//    MyViewer.showCloud(color_cloud.makeShared(),"cloud");
 
 	if(front_curb.empty())	return;
 	front_curb.header.frame_id = "base_link";
