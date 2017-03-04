@@ -31,3 +31,7 @@ include_directories(
 add_executable(fix2tfpose src/fix2tfpose.cpp)
 target_link_libraries(fix2tfpose ${catkin_LIBRARIES})
 target_link_libraries(fix2tfpose gps)
+
+add_executable(n280conv src/n280conv.cpp)
+target_link_libraries(n280conv ${catkin_LIBRARIES})
+#target_link_libraries(n280pose gps)
