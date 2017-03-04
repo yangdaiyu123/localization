@@ -112,7 +112,14 @@ void CurbDetection::frontPointCloudCallback(const VPointCloud::ConstPtr &inMsg)
 
 //    MyViewer.showCloud(color_cloud.makeShared(),"cloud");
 
-	if(front_curb.empty())	return;
+	if(front_curb.empty())
+	{
+		front_curb.header.frame_id = "base_link";
+		sensor_msgs::PointCloud2 cloud_to_pub;
+		pcl::toROSMsg(front_curb, cloud_to_pub);
+		pub_front_curb.publish(cloud_to_pub);
+		return;
+	}
 	front_curb.header.frame_id = "base_link";
 	sensor_msgs::PointCloud2 cloud_to_pub;
 //    pcl::toROSMsg(front_curb, cloud_to_pub);
