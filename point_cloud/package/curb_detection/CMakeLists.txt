@@ -46,15 +46,21 @@ include_directories(
 
 # Set the name to use for the executable.
 set (BINNAME1 curb_detection)
+set (BINNAME2 template_test)
 
 # Set the source files to use with the executable.
 set (SRCS1 ${SRCS1} src/curb_detection.cpp)
+set (SRCS2 ${SRCS2} src/template_test.cpp)
 
 # Build the executable that will be used to run this node.
 add_executable (${BINNAME1} ${SRCS1})
 target_link_libraries(${BINNAME1} ${catkin_LIBRARIES})
 target_link_libraries(${BINNAME1} ${PCL_LIBRARIES})
 target_link_libraries(${BINNAME1} curb_detector ransac_line)
+
+add_executable (${BINNAME2} ${SRCS2})
+target_link_libraries(${BINNAME2} ${catkin_LIBRARIES})
+target_link_libraries(${BINNAME2} ${PCL_LIBRARIES})
 
 #install(DIRECTORY include/${PROJECT_NAME}/
 #  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
