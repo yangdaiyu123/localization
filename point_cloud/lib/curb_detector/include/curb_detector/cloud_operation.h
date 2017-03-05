@@ -46,7 +46,8 @@ vector<pcl::PointCloud<pcl::PointXYZI> > cloudToArray(const VPointCloud::ConstPt
 	return cloud_array;
 }
 
-void getHeadRearIdx(const vector<pcl::PointCloud<pcl::PointXYZI> > cloud_array,
+template <typename PointT>
+void getHeadRearIdx(const vector<pcl::PointCloud<PointT> > cloud_array,
 					vector<int>& head_idx, vector<int>& rear_idx)
 {
 	int ring_total = cloud_array.size();
@@ -87,11 +88,12 @@ void getHeadRearIdx(const vector<pcl::PointCloud<pcl::PointXYZI> > cloud_array,
 //		cout<<"ring: "<<i<<"\tsize: "<<cloud_array[i].size()<<"\thead_idx: "<<head_idx[i]<<"\trear_idx: "<<rear_idx[i]<<endl;
 }
 
-vector<pcl::PointCloud<pcl::PointXYZI> > sortCloudArray(const vector<pcl::PointCloud<pcl::PointXYZI> > cloud_array,
+template <typename PointT>
+vector<pcl::PointCloud<PointT> > sortCloudArray(const vector<pcl::PointCloud<PointT> > cloud_array,
 														const vector<int> head_idx, const vector<int> rear_idx)
 {
 	int ring_total = cloud_array.size();
-	vector<pcl::PointCloud<pcl::PointXYZI> > cloud_sorted;
+	vector<pcl::PointCloud<PointT> > cloud_sorted;
 	cloud_sorted.resize(ring_total);
 
 	for(int ring_id=0; ring_id<ring_total; ring_id++)
@@ -106,11 +108,12 @@ vector<pcl::PointCloud<pcl::PointXYZI> > sortCloudArray(const vector<pcl::PointC
 
 }
 
-vector<pcl::PointCloud<pcl::PointXYZI> > sortCloudArrayReverse(const vector<pcl::PointCloud<pcl::PointXYZI> > cloud_array,
+template <typename PointT>
+vector<pcl::PointCloud<PointT> > sortCloudArrayReverse(const vector<pcl::PointCloud<PointT> > cloud_array,
 														const vector<int> head_idx, const vector<int> rear_idx)
 {
 	int ring_total = cloud_array.size();
-	vector<pcl::PointCloud<pcl::PointXYZI> > cloud_sorted;
+	vector<pcl::PointCloud<PointT> > cloud_sorted;
 	cloud_sorted.resize(ring_total);
 
 	for(int ring_id=0; ring_id<ring_total; ring_id++)
@@ -124,9 +127,10 @@ vector<pcl::PointCloud<pcl::PointXYZI> > sortCloudArrayReverse(const vector<pcl:
 	return	cloud_sorted;
 }
 
-pcl::PointCloud<pcl::PointXYZI> getOneRing(const vector<pcl::PointCloud<pcl::PointXYZI> > cloud_array, const int ring_id)
+template <typename PointT>
+pcl::PointCloud<PointT> getOneRing(const vector<pcl::PointCloud<PointT> > cloud_array, const int ring_id)
 {
-	pcl::PointCloud<pcl::PointXYZI> cloud;
+	pcl::PointCloud<PointT> cloud;
 	if(ring_id>=cloud_array.size())	{std::cout<<"ring_id out of array size\n"; return cloud;}
 
 	for(int i=0; i<cloud_array[ring_id].size(); i++)
@@ -134,10 +138,11 @@ pcl::PointCloud<pcl::PointXYZI> getOneRing(const vector<pcl::PointCloud<pcl::Poi
 	return cloud;
 }
 
-pcl::PointCloud<pcl::PointXYZI> getOneRingSection(const vector<pcl::PointCloud<pcl::PointXYZI> > cloud_sorted,
+template <typename PointT>
+pcl::PointCloud<PointT> getOneRingSection(const vector<pcl::PointCloud<PointT> > cloud_sorted,
 												const int ring_id, const int start_idx, const int end_idx)
 {
-	pcl::PointCloud<pcl::PointXYZI> cloud;
+	pcl::PointCloud<PointT> cloud;
 	if(ring_id>=cloud_sorted.size())	{std::cout<<"ring_id out of array size\n"; return cloud;}
 //	if(start_idx<0 )
 
@@ -146,7 +151,8 @@ pcl::PointCloud<pcl::PointXYZI> getOneRingSection(const vector<pcl::PointCloud<p
 	return cloud;
 }
 
-double getDevX(pcl::PointCloud<pcl::PointXYZI> cloud, int start, int end)
+template <typename PointT>
+double getDevX(pcl::PointCloud<PointT> cloud, int start, int end)
 {
 	double sum_x=0.0;
 	double mean_x;
@@ -169,7 +175,8 @@ double getDevX(pcl::PointCloud<pcl::PointXYZI> cloud, int start, int end)
 	return	sum_dx2;
 }
 
-double getDevY(pcl::PointCloud<pcl::PointXYZI> cloud, int start, int end)
+template <typename PointT>
+double getDevY(pcl::PointCloud<PointT> cloud, int start, int end)
 {
 	double sum_y=0.0;
 	double mean_y;
@@ -192,7 +199,8 @@ double getDevY(pcl::PointCloud<pcl::PointXYZI> cloud, int start, int end)
 	return	sum_dy2;
 }
 
-double getDevXYZ(pcl::PointCloud<pcl::PointXYZI> cloud, int start, int end, double& dev_x, double& dev_y, double& dev_z)
+template <typename PointT>
+double getDevXYZ(pcl::PointCloud<PointT> cloud, int start, int end, double& dev_x, double& dev_y, double& dev_z)
 {
 	double sum_x=0.0,sum_y=0.0,sum_z=0.0;
 	double mean_x=0.0,mean_y=0.0,mean_z=0.0;
@@ -223,19 +231,11 @@ double getDevXYZ(pcl::PointCloud<pcl::PointXYZI> cloud, int start, int end, doub
 	dev_x = sum_dx2;	dev_y = sum_dy2;	dev_z = sum_dz2;
 
 	double ratio = dev_y / (dev_x * dev_z);
-//	if(ratio>100)
-//	{
-//		cout<<"sum_x: "<<sum_x<<"\tmean_x: "<<mean_x<<"\tsum_dx2: "<<sum_dx2<<endl;
-//		cout<<"sum_y: "<<sum_y<<"\tmean_y: "<<mean_y<<"\tsum_dy2: "<<sum_dy2<<endl;
-//		cout<<"sum_z: "<<sum_z<<"\tmean_z: "<<mean_z<<"\tsum_dz2: "<<sum_dz2<<endl;
-
-//	}
-
-
 	return	sum_dy2;
 }
 
-double getDevRatio(pcl::PointCloud<pcl::PointXYZI> cloud, int start, int end)
+template <typename PointT>
+double getDevRatio(pcl::PointCloud<PointT> cloud, int start, int end)
 {
 	double dev_x = getDevX(cloud, start, end);
 	double dev_y = getDevY(cloud, start, end);
@@ -245,7 +245,8 @@ double getDevRatio(pcl::PointCloud<pcl::PointXYZI> cloud, int start, int end)
 	return ratio;
 }
 
-double getDevRatio(pcl::PointCloud<pcl::PointXYZI> cloud, int start, int end, bool swap_x_y)
+template <typename PointT>
+double getDevRatio(pcl::PointCloud<PointT> cloud, int start, int end, bool swap_x_y)
 {
 	double dev_x = getDevX(cloud, start, end);
 	double dev_y = getDevY(cloud, start, end);
@@ -255,23 +256,20 @@ double getDevRatio(pcl::PointCloud<pcl::PointXYZI> cloud, int start, int end, bo
 	return ratio;
 }
 
-void setPointsInvalid(pcl::PointCloud<pcl::PointXYZI>& cloud)
+template <typename PointT>
+void setPointsInvalid(pcl::PointCloud<PointT>& cloud)
 {
 	pcl::PointXYZI p;
-	p.x=INVAILD_LABEL;p.y=INVAILD_LABEL;p.z=INVAILD_LABEL;p.intensity=0;
+	p.x=INVAILD_LABEL;p.y=INVAILD_LABEL;p.z=INVAILD_LABEL;
 	cloud.clear();
 	cloud.push_back(p);
 }
 
-bool isPointValid(const pcl::PointXYZI p)
-{
-
-}
-
-pcl::PointCloud<pcl::PointXYZI> searchSectionEdgePoint(pcl::PointCloud<pcl::PointXYZI> cloud,
+template <typename PointT>
+pcl::PointCloud<PointT> searchSectionEdgePoint(pcl::PointCloud<PointT> cloud,
 														int start, int end, int step, int window_size,int ratio_th)
 {
-	pcl::PointCloud<pcl::PointXYZI> edge_points;
+	pcl::PointCloud<PointT> edge_points;
 //	cout<<"searchSectionEdgePoint"<<endl;
 	if(start==-1 || end==-1)
 	{
@@ -318,10 +316,11 @@ pcl::PointCloud<pcl::PointXYZI> searchSectionEdgePoint(pcl::PointCloud<pcl::Poin
 	return edge_points;
 }
 
-pcl::PointCloud<pcl::PointXYZI> searchSectionSignPoint(pcl::PointCloud<pcl::PointXYZI> cloud,
+template <typename PointT>
+pcl::PointCloud<PointT> searchSectionSignPoint(pcl::PointCloud<PointT> cloud,
 														int start, int end, int step, int window_size,int ratio_th)
 {
-	pcl::PointCloud<pcl::PointXYZI> sign_points;
+	pcl::PointCloud<PointT> sign_points;
 	if(start==-1 || end==-1)
 	{
 		setPointsInvalid(cloud);
@@ -352,11 +351,13 @@ pcl::PointCloud<pcl::PointXYZI> searchSectionSignPoint(pcl::PointCloud<pcl::Poin
 	return sign_points;
 }
 
-vector<pcl::PointCloud<pcl::PointXYZI> > searchHeadRight(const vector<pcl::PointCloud<pcl::PointXYZI> > cloud_sorted,
+
+template <typename PointT>
+vector<pcl::PointCloud<PointT> > searchHeadRight(const vector<pcl::PointCloud<PointT> > cloud_sorted,
 									const int step, const int window_size,const int ratio_th)
 {
 //	cout<<"searchHeadRight"<<endl;
-	vector<pcl::PointCloud<pcl::PointXYZI> > mark_points;
+	vector<pcl::PointCloud<PointT> > mark_points;
 	int ring_total = cloud_sorted.size();
 	mark_points.resize(ring_total);
 
@@ -377,7 +378,7 @@ vector<pcl::PointCloud<pcl::PointXYZI> > searchHeadRight(const vector<pcl::Point
 
 //		cout<<"searchHeadRight\t"<<"ring_id: "<<ring_id<<"\tend_idx: "<<cloud_sorted[ring_id].size()<<endl;
 		edge_points = searchSectionEdgePoint(cloud_sorted[ring_id],start_idx, end_idx, step, window_size, ratio_th);
-		for (pcl::PointCloud<PointXYZI>::iterator it = edge_points.begin(); it != edge_points.end(); /**/)
+		for (typename pcl::PointCloud<PointT>::iterator it = edge_points.begin(); it != edge_points.end(); /**/)
 		{
 		    if ((*it).x < 0) it = edge_points.erase(it);
 		    else ++it;
@@ -391,11 +392,12 @@ vector<pcl::PointCloud<pcl::PointXYZI> > searchHeadRight(const vector<pcl::Point
 	return	mark_points;
 }
 
-vector<pcl::PointCloud<pcl::PointXYZI> > searchHeadLeft(const vector<pcl::PointCloud<pcl::PointXYZI> > cloud_sorted,
+template <typename PointT>
+vector<pcl::PointCloud<PointT> > searchHeadLeft(const vector<pcl::PointCloud<PointT> > cloud_sorted,
 									const int step, const int window_size,const int ratio_th)
 {
 //	cout<<"searchHeadLeft"<<endl;
-	vector<pcl::PointCloud<pcl::PointXYZI> > mark_points;
+	vector<pcl::PointCloud<PointT> > mark_points;
 	int ring_total = cloud_sorted.size();
 	mark_points.resize(ring_total);
 
@@ -415,7 +417,7 @@ vector<pcl::PointCloud<pcl::PointXYZI> > searchHeadLeft(const vector<pcl::PointC
 
 //		cout<<"searchHeadLeft"<<endl;
 		edge_points = searchSectionEdgePoint(cloud_sorted[ring_id],start_idx, end_idx, step, window_size, ratio_th);
-		for (pcl::PointCloud<PointXYZI>::iterator it = edge_points.begin(); it != edge_points.end(); /**/)
+		for (typename pcl::PointCloud<PointT>::iterator it = edge_points.begin(); it != edge_points.end(); /**/)
 		{
 		    if ((*it).x < 0) it = edge_points.erase(it);
 		    else ++it;
@@ -428,11 +430,12 @@ vector<pcl::PointCloud<pcl::PointXYZI> > searchHeadLeft(const vector<pcl::PointC
 	return	mark_points;
 }
 
-vector<pcl::PointCloud<pcl::PointXYZI> > searchRearRight(const vector<pcl::PointCloud<pcl::PointXYZI> > cloud_sorted,
+template <typename PointT>
+vector<pcl::PointCloud<PointT> > searchRearRight(const vector<pcl::PointCloud<PointT> > cloud_sorted,
 									const int step, const int window_size,const int ratio_th)
 {
 //	cout<<"searchRearRight"<<endl;
-	vector<pcl::PointCloud<pcl::PointXYZI> > mark_points;
+	vector<pcl::PointCloud<PointT> > mark_points;
 	int ring_total = cloud_sorted.size();
 	mark_points.resize(ring_total);
 
@@ -451,7 +454,7 @@ vector<pcl::PointCloud<pcl::PointXYZI> > searchRearRight(const vector<pcl::Point
 
 //		cout<<"searchRearRight"<<endl;
 		edge_points = searchSectionEdgePoint(cloud_sorted[ring_id],start_idx, end_idx, step, window_size, ratio_th);
-		for (pcl::PointCloud<PointXYZI>::iterator it = edge_points.begin(); it != edge_points.end(); /**/)
+		for (typename pcl::PointCloud<PointT>::iterator it = edge_points.begin(); it != edge_points.end(); /**/)
 		{
 		    if ((*it).x > 0 || abs((*it).y)<1 ) it = edge_points.erase(it);
 		    else ++it;
@@ -463,11 +466,12 @@ vector<pcl::PointCloud<pcl::PointXYZI> > searchRearRight(const vector<pcl::Point
 	return	mark_points;
 }
 
-vector<pcl::PointCloud<pcl::PointXYZI> > searchRearLeft(const vector<pcl::PointCloud<pcl::PointXYZI> > cloud_sorted,
+template <typename PointT>
+vector<pcl::PointCloud<PointT> > searchRearLeft(const vector<pcl::PointCloud<PointT> > cloud_sorted,
 									const int step, const int window_size,const int ratio_th)
 {
 //	cout<<"searchRearLeft"<<endl;
-	vector<pcl::PointCloud<pcl::PointXYZI> > mark_points;
+	vector<pcl::PointCloud<PointT> > mark_points;
 	int ring_total = cloud_sorted.size();
 	mark_points.resize(ring_total);
 
@@ -486,7 +490,7 @@ vector<pcl::PointCloud<pcl::PointXYZI> > searchRearLeft(const vector<pcl::PointC
 
 //		cout<<"searchRearLeft"<<endl;
 		edge_points = searchSectionEdgePoint(cloud_sorted[ring_id],start_idx, end_idx, step, window_size, ratio_th);
-		for (pcl::PointCloud<PointXYZI>::iterator it = edge_points.begin(); it != edge_points.end(); /**/)
+		for (typename pcl::PointCloud<PointT>::iterator it = edge_points.begin(); it != edge_points.end(); /**/)
 		{
 		    if ((*it).x > 0 || abs((*it).y)<1) it = edge_points.erase(it);
 		    else ++it;
@@ -498,10 +502,11 @@ vector<pcl::PointCloud<pcl::PointXYZI> > searchRearLeft(const vector<pcl::PointC
 	return	mark_points;
 }
 
-vector<pcl::PointCloud<pcl::PointXYZI> > searchSignPoints(const vector<pcl::PointCloud<pcl::PointXYZI> > cloud_sorted,
+template <typename PointT>
+vector<pcl::PointCloud<PointT> > searchSignPoints(const vector<pcl::PointCloud<PointT> > cloud_sorted,
 														const int step, const int window_size,const int ratio_th)
 {
-	vector<pcl::PointCloud<pcl::PointXYZI> > mark_points;
+	vector<pcl::PointCloud<PointT> > mark_points;
 	int ring_total = cloud_sorted.size();
 	mark_points.resize(ring_total);
 //	cout<<"ring_total "<<ring_total<<endl;
@@ -581,7 +586,8 @@ pcl::PointCloud<pcl::PointXYZRGB> arrayToColorCloud(const vector<pcl::PointCloud
 	return cloud;
 }
 
-void markPoints(pcl::PointCloud<pcl::PointXYZRGB>& color_cloud, vector<pcl::PointCloud<pcl::PointXYZI> > mark_points, int mark_color)
+template <typename PointT>
+void markPoints(pcl::PointCloud<pcl::PointXYZRGB>& color_cloud, vector<pcl::PointCloud<PointT> > mark_points, int mark_color)
 {
 	pcl::PointXYZRGB p;
 	for(int ring_id=0; ring_id<mark_points.size(); ring_id++)
@@ -597,22 +603,9 @@ void markPoints(pcl::PointCloud<pcl::PointXYZRGB>& color_cloud, vector<pcl::Poin
 	}
 }
 
-void markPoints(pcl::PointCloud<pcl::PointXYZRGB>& color_cloud, pcl::PointCloud<pcl::PointXYZ>  mark_points, int mark_color)
-{
-	if(mark_points.empty())	return;
-	pcl::PointXYZRGB p;
 
-	for(int i=0; i<mark_points.size(); i++)
-	{
-		p.x = mark_points.points[i].x;
-		p.y = mark_points.points[i].y;
-		p.z = mark_points.points[i].z;
-		p.rgb = *reinterpret_cast<float*>(&rainbow[mark_color]);
-		color_cloud.push_back(p);
-	}
-}
-
-void markPoints(pcl::PointCloud<pcl::PointXYZRGB>& color_cloud, pcl::PointCloud<pcl::PointXYZI>  mark_points, int mark_color)
+template <typename PointT>
+void markPoints(pcl::PointCloud<pcl::PointXYZRGB>& color_cloud, pcl::PointCloud<PointT>  mark_points, int mark_color)
 {
 	if(mark_points.empty())	return;
 	pcl::PointXYZRGB p;
@@ -630,52 +623,35 @@ void markPoints(pcl::PointCloud<pcl::PointXYZRGB>& color_cloud, pcl::PointCloud<
 namespace filter
 {
 
-
-bool is_point_available(pcl::PointXYZRGB p)
+template <typename PointT>
+bool is_point_available(PointT p)
 {
 	if(	int(p.z)==INVAILD_LABEL)
 		return	false;
 	else	return true;
 }
 
-bool is_point_available(pcl::PointXYZ p)
+template <typename PointT>
+void remove_invalid_points(pcl::PointCloud<PointT>&  cloud)
 {
-	if(	int(p.z)==INVAILD_LABEL)
-		return	false;
-	else	return true;
-}
-
-bool is_point_available(pcl::PointXYZI p)
-{
-	if(	int(p.z)==INVAILD_LABEL)
-		return	false;
-	else	return true;
-}
-
-void remove_invalid_points(pcl::PointCloud<pcl::PointXYZ>&  cloud)
-{
-	for (pcl::PointCloud<PointXYZ>::iterator it = cloud.begin(); it != cloud.end(); /**/)
+	for (typename pcl::PointCloud<PointT>::iterator it = cloud.begin(); it != cloud.end(); /**/)
 	    if ( !is_point_available(*it) ) it = cloud.erase(it);
 	    else ++it;
 }
 
-void remove_invalid_points(pcl::PointCloud<pcl::PointXYZRGB>&  cloud)
-{
-	for (pcl::PointCloud<PointXYZRGB>::iterator it = cloud.begin(); it != cloud.end(); /**/)
-	    if ( !is_point_available(*it) ) it = cloud.erase(it);
-	    else ++it;
-}
 
-bool is_position_reasonable(pcl::PointXYZ p)
+template <typename PointT>
+bool is_position_reasonable(PointT p)
 {
 	if(p.z>0.5)	return false;
 	else if(abs(p.y)>8) return false;
 	else return true;
 }
 
-void dist_filter(pcl::PointCloud<pcl::PointXYZ>&  cloud)
+template <typename PointT>
+void dist_filter(pcl::PointCloud<PointT>&  cloud)
 {
-	for (pcl::PointCloud<PointXYZ>::iterator it = cloud.begin(); it != cloud.end(); /**/)
+	for (typename pcl::PointCloud<PointT>::iterator it = cloud.begin(); it != cloud.end(); /**/)
 		if ( !is_position_reasonable(*it) ) it = cloud.erase(it);
 	    else ++it;
 }
@@ -729,6 +705,12 @@ pcl::PointCloud<pcl::PointXYZ> ransac_fit_line(pcl::PointCloud<pcl::PointXYZ> ed
 		inlier_points.push_back(points_set[inliers_idx[i]]);
 
 	return	inlier_points;
+}
+
+template <typename PointT>
+void test_template(PointT p)
+{
+	cout<<"x: "<<p.x<<"\t"<<"y: "<<p.y<<"\t"<<"z: "<<p.z<<endl;
 }
 
 
