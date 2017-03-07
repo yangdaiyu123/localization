@@ -1,0 +1,10 @@
+<!-- -->
+<launch>
+  	<node pkg="pcl_demo" type="load_pcd_grid" name="load_pcd_grid" output="screen">
+		<param name="map_path" value="/home/wlh/map/oriented_point_map/"/>
+		<param name="pose_type" value="/truth_pose"/>
+		<param name="grid_scale" value="50"/>
+
+    </node>
+
+</launch>
