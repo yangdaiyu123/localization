@@ -1,5 +1,5 @@
 #ifndef RANSAC_LINE_H_
-#define RANSAC_LINE__H_
+#define RANSAC_LINE_H_
 
 
 #include <iostream>
