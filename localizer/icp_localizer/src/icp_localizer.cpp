@@ -32,6 +32,7 @@ ICPLocalizer::ICPLocalizer()
 
 void ICPLocalizer::frontCurbCallback(const OPointCloud::ConstPtr &input)
 {
+	cout<<"front_odom_inc: "<<front_odom_inc<<endl;
 	try
 	{
 		static tf::TransformListener trf_listener1;
