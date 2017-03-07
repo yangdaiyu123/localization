@@ -28,6 +28,10 @@
 #include <pcl/features/normal_3d.h>
 #include <pcl/common/transforms.h>
 
+#include <pcl/visualization/impl/pcl_visualizer.hpp>
+#include <pcl/visualization/impl/point_cloud_geometry_handlers.hpp>
+#include <pcl/visualization/impl/point_cloud_color_handlers.hpp>
+
 
 #include <pcl_ros/point_cloud.h>
 #include <point_types.h>
