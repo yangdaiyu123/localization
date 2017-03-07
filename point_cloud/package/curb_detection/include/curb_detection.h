@@ -28,6 +28,10 @@ private:
 	CurbDetector* detector;
 	int left_curb_dist;
 	int right_curb_dist;
+
+	pcl::PointCloud<PointXYZO> front_curb;
+	pcl::PointCloud<PointXYZO> rear_curb;
+	pcl::PointCloud<PointXYZO> sign_points;
 };
 
 
