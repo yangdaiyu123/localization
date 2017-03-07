@@ -72,8 +72,9 @@ void gpsPoseCallback(geometry_msgs::PoseStamped pose_in)
 		for(int j=-1; j<=1; j++)
 		{
 			std::stringstream ss;
-			ss<<grid_x+i<<"_"<<grid_y+j<<".pcd"<<endl;
-			if (pcl::io::loadPCDFile<PointXYZO> (map_path+ss.str()+".pcd", *cloud_in) == -1)
+			ss<<grid_x+i<<"_"<<grid_y+j<<".pcd";
+//			cout<<ss.str()<<endl;
+			if (pcl::io::loadPCDFile<PointXYZO> (map_path+ss.str(), *cloud_in) == -1)
 				std::cout<<"read error\n";
 			else *cloud_sum += *cloud_in;
 		}

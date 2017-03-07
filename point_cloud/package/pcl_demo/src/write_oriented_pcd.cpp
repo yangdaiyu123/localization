@@ -152,17 +152,17 @@ void gpsPoseCallback(geometry_msgs::PoseStamped pose_in)
 		{
 			pcl::PointCloud<PointXYZO>::Ptr cloud_old(new pcl::PointCloud<PointXYZO>);
 			std::stringstream ss;
-			ss<<grid.x()<<"_"<<grid.y()<<".pcd"<<endl;
+			ss<<grid.x()<<"_"<<grid.y()<<".pcd";
 			cout<<ss.str();
 
-			if (pcl::io::loadPCDFile<PointXYZO> (map_path + ss.str()+".pcd", *cloud_old) == -1)
+			if (pcl::io::loadPCDFile<PointXYZO> (map_path + ss.str(), *cloud_old) == -1)
 				if(!cloud_out->empty())
-					pcl::io::savePCDFileASCII (map_path + ss.str()+".pcd", *cloud_out);
+					pcl::io::savePCDFileASCII (map_path + ss.str(), *cloud_out);
 			else
 			{
 				*cloud_out += *cloud_old;
 				if(!cloud_out->empty())
-					pcl::io::savePCDFileASCII (map_path + ss.str()+".pcd", *cloud_out);
+					pcl::io::savePCDFileASCII (map_path + ss.str(), *cloud_out);
 			}
 
 			cloud_out->clear();
