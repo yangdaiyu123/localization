@@ -1,0 +1,9 @@
+<!-- -->
+<launch>
+  	<node pkg="pcl_demo" type="write_oriented_pcd" name="write_oriented_pcd_grid" output="screen">
+		<param name="map_path" value="/home/wlh/map/oriented_point_map/"/>
+		<param name="grid_scale" value="50"/>
+
+    </node>
+
+</launch>
