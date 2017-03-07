@@ -3,9 +3,10 @@
   	<node pkg="fix2pose" type="fix2tfpose" name="estimate_pose" output="screen">
 		<param name="topic_pose" value="estimate_pose"/>
 		<param name="topic_gps" value="n280_fix"/>
+		<param name="frame_id" value="estimate"/>
 		<param name="topic_yaw" value="n280_yaw"/>
-		<param name="origin_lat" value="31.0"/>
-		<param name="origin_lon" value="121.0"/>
+		<param name="origin_lat" value="31.01"/>
+		<param name="origin_lon" value="121.25"/>
 
 
     </node>

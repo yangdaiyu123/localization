@@ -21,6 +21,7 @@ static double yaw;
 static double yaw_filtered;
 
 string topic_pose, topic_gps, topic_yaw;
+string frame_id;
 double origin_lat, origin_lon;
 
 
@@ -40,7 +41,7 @@ void gpsFilteredCallback(const sensor_msgs::NavSatFixConstPtr &msg)
     geometry_msgs::PoseStamped pose;
     pose.header = msg->header;
     pose.header.stamp = msg->header.stamp;
-    pose.header.frame_id = "map";
+    pose.header.frame_id = frame_id;
     pose.pose.position.x = geo.y();
     pose.pose.position.y = geo.x();
     pose.pose.position.z = 0;
@@ -54,7 +55,7 @@ void gpsFilteredCallback(const sensor_msgs::NavSatFixConstPtr &msg)
     transform_filtered.setOrigin(tf::Vector3(pose.pose.position.x, pose.pose.position.y,pose.pose.position.z));
     q_filtered.setRPY(0, 0, yaw_filtered);
     transform_filtered.setRotation(q_filtered);
-    br_filtered.sendTransform( tf::StampedTransform(transform_filtered, msg->header.stamp, "map","base_link"));
+    br_filtered.sendTransform( tf::StampedTransform(transform_filtered, msg->header.stamp, frame_id ,"base_link"));
 }
 
 void yawFilteredCallback(const std_msgs::Float64::ConstPtr& yaw_rad_in)
@@ -71,6 +72,7 @@ int main(int argc, char **argv)
     pnh.param<std::string>("topic_pose", topic_pose, "gps_pose");
     pnh.param<std::string>("topic_gps", topic_gps, "gps_filtered");
     pnh.param<std::string>("topic_yaw", topic_yaw, "yaw_filtered");
+    pnh.param<std::string>("frame_id", frame_id, "map");
     pnh.param("origin_lat", origin_lat, 31.0);
     pnh.param("origin_lon", origin_lon, 121.0);
 

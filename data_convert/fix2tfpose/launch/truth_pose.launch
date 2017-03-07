@@ -3,9 +3,10 @@
   	<node pkg="fix2pose" type="fix2tfpose" name="truth_pose" output="screen">
 		<param name="topic_pose" value="truth_pose"/>
 		<param name="topic_gps" value="gps_filtered"/>
+		<param name="frame_id" value="map"/>
 		<param name="topic_yaw" value="yaw_filtered"/>
-		<param name="origin_lat" value="31.0"/>
-		<param name="origin_lon" value="121.0"/>
+		<param name="origin_lat" value="31.01"/>
+		<param name="origin_lon" value="121.25"/>
 
 <!--		latitude: 31.0274549517-->
 <!--longitude: 121.433393138-->
