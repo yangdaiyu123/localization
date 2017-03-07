@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 	std::cout << "source loaded!" << std::endl;
 
 	Eigen::Affine3f trans0 = Eigen::Affine3f::Identity();
-	trans0.translation() << -41320.719, -3091.3975, 0;
+	trans0.translation() << -51.755543, -58.720894, 0;
 	pcl::transformPointCloud(*cloud_source, *cloud_source, trans0);
 
 	Eigen::Affine3f trans = Eigen::Affine3f::Identity();
