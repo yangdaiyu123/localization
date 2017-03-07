@@ -41,7 +41,7 @@ void gpsFilteredCallback(const sensor_msgs::NavSatFixConstPtr &msg)
     geometry_msgs::PoseStamped pose;
     pose.header = msg->header;
     pose.header.stamp = msg->header.stamp;
-    pose.header.frame_id = frame_id;
+    pose.header.frame_id = "map";
     pose.pose.position.x = geo.y();
     pose.pose.position.y = geo.x();
     pose.pose.position.z = 0;
@@ -55,7 +55,7 @@ void gpsFilteredCallback(const sensor_msgs::NavSatFixConstPtr &msg)
     transform_filtered.setOrigin(tf::Vector3(pose.pose.position.x, pose.pose.position.y,pose.pose.position.z));
     q_filtered.setRPY(0, 0, yaw_filtered);
     transform_filtered.setRotation(q_filtered);
-    br_filtered.sendTransform( tf::StampedTransform(transform_filtered, msg->header.stamp, frame_id ,"base_link"));
+    br_filtered.sendTransform( tf::StampedTransform(transform_filtered, msg->header.stamp, "map" ,frame_id));
 }
 
 void yawFilteredCallback(const std_msgs::Float64::ConstPtr& yaw_rad_in)
