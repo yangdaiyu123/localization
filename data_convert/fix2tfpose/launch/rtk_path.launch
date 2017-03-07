@@ -1,0 +1,9 @@
+<!-- -->
+<launch>
+  	<node pkg="fix2pose" type="pose2path" name="rtk_path">
+		<remap from="truth_path" to="rtk_path"/>
+		<remap from="truth_pose" to="rtk_pose"/>
+
+    </node>
+
+</launch>

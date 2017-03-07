@@ -1,0 +1,11 @@
+<!-- -->
+<launch>
+  	<node pkg="fix2pose" type="pose2path" name="estimate_path" output="screen">
+<!--		<param name="path_type" value="estimate_path"/>-->
+<!--		<param name="pose_type" value="estimate_pose"/>-->
+		<remap from="truth_path" to="estimate_path"/>
+		<remap from="truth_pose" to="estimate_pose"/>
+
+    </node>
+
+</launch>

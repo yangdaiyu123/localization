@@ -34,4 +34,8 @@ target_link_libraries(fix2tfpose gps)
 
 add_executable(n280conv src/n280conv.cpp)
 target_link_libraries(n280conv ${catkin_LIBRARIES})
+
+add_executable(pose2path src/pose2path.cpp)
+target_link_libraries(pose2path ${catkin_LIBRARIES})
+
 #target_link_libraries(n280pose gps)
