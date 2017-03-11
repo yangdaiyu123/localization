@@ -36,7 +36,9 @@ ros::Publisher	pub_rear;
 ros::Publisher	pub_top;
 
 double front_pitch = 0;//degree
+double rear_roll = 0;//degree
 double rear_pitch = 0;//degree
+double rear_yaw = 0;//degree
 double front_tx = 0;
 double front_ty = 0;
 double front_tz = 0;
@@ -59,9 +61,11 @@ void synCurbCallback(const sensor_msgs::PointCloud2::ConstPtr& front_cloud_in,
 
 	Eigen::Affine3f transform2 = Eigen::Affine3f::Identity();
 	transform2.translation() << rear_tx, rear_ty, rear_tz;
-	transform2.rotate(Eigen::AngleAxisf(M_PI, Eigen::Vector3f::UnitZ()));
+	transform2.rotate(Eigen::AngleAxisf(M_PI/2.0, Eigen::Vector3f::UnitZ()));
 	transform2.rotate(Eigen::AngleAxisf(rear_pitch*M_PI/180, Eigen::Vector3f::UnitY()));
+	transform2.rotate(Eigen::AngleAxisf(rear_roll*M_PI/180, Eigen::Vector3f::UnitX()));
 	pcl::transformPointCloud(*cloud_rear, *cloud_rear, transform2);
+
 
 	*cloud_top = *cloud_front + *cloud_rear;
 
@@ -69,13 +73,15 @@ void synCurbCallback(const sensor_msgs::PointCloud2::ConstPtr& front_cloud_in,
 	pass.setInputCloud(cloud_front);
 	pass.setFilterFieldName("y");
 	pass.setFilterLimits(-10,10);
+	pass.filter(*cloud_front);
 	pass.setFilterFieldName("z");
 	pass.setFilterLimits(-0.5,0.6);
 	pass.filter(*cloud_front);
-
+	
 	pass.setInputCloud(cloud_rear);
 	pass.setFilterFieldName("y");
 	pass.setFilterLimits(-10,10);
+	pass.filter(*cloud_rear);
 	pass.setFilterFieldName("z");
 	pass.setFilterLimits(-0.5,0.6);
 	pass.filter(*cloud_rear);
@@ -83,6 +89,7 @@ void synCurbCallback(const sensor_msgs::PointCloud2::ConstPtr& front_cloud_in,
 	pass.setInputCloud(cloud_top);
 	pass.setFilterFieldName("y");
 	pass.setFilterLimits(-10,10);
+	pass.filter(*cloud_top);
 	pass.setFilterFieldName("z");
 	pass.setFilterLimits(4,7);
 	pass.filter(*cloud_top);
@@ -125,7 +132,9 @@ int main(int argc, char **argv)
 	pnh.param("front_tx", front_tx,0.0);
 	pnh.param("front_ty", front_ty,0.0);
 	pnh.param("front_tz", front_tz,1.9);
-	pnh.param("rear_pitch", rear_pitch,15.5);
+	pnh.param("rear_roll", rear_roll,-22.0);
+	pnh.param("rear_pitch", rear_pitch,0.0);
+	pnh.param("rear_yaw", rear_yaw,90.0);
 	pnh.param("rear_tx", rear_tx,-0.8);
 	pnh.param("rear_ty", rear_ty,-0.2);
 	pnh.param("rear_tz", rear_tz,1.7);
