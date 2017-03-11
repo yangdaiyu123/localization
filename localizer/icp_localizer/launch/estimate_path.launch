@@ -1,0 +1,7 @@
+<!-- -->
+<launch>
+  	<node pkg="icp_localizer" type="cloud_accumulator" name="cloud_accumulator" output="screen">
+		<param name="init_odom" value="60"/>
+    </node>
+
+</launch>

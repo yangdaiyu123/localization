@@ -40,16 +40,21 @@ include_directories(
 
 # Set the name to use for the executable.
 set (BINNAME1 icp_localizer)
+set (BINNAME2 cloud_accumulator)
 
 
 ## Set the source files to use with the executable.
 set (SRCS1 ${SRCS1} src/icp_localizer.cpp)
+set (SRCS2 ${SRCS2} src/cloud_accumulator.cpp)
 
 # Build the executable that will be used to run this node.
 add_executable (${BINNAME1} ${SRCS1})
 target_link_libraries(${BINNAME1} ${catkin_LIBRARIES})
 target_link_libraries(${BINNAME1} ${PCL_LIBRARIES})
 
+add_executable (${BINNAME2} ${SRCS2})
+target_link_libraries(${BINNAME2} ${catkin_LIBRARIES})
+target_link_libraries(${BINNAME2} ${PCL_LIBRARIES})
 
 
 #install(DIRECTORY include/${PROJECT_NAME}/
