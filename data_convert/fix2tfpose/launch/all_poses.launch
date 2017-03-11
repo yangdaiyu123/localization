@@ -1,0 +1,47 @@
+<!-- -->
+<launch>
+  	<node pkg="fix2pose" type="fix2tfpose" name="estimate_pose">
+		<param name="pub_topic_pose" value="estimate_pose"/>
+		<param name="sub_topic_gps" value="n280_fix"/>
+		<param name="sub_topic_yaw" value="n280_yaw"/>
+		<param name="pose_frame_id" value="estimate"/>
+		<param name="origin_lat" value="31.027"/>
+		<param name="origin_lon" value="121.433"/>
+    </node>
+    
+  	<node pkg="fix2pose" type="pose2path" name="estimate_path">
+		<remap from="truth_path" to="estimate_path"/>
+		<remap from="truth_pose" to="estimate_pose"/>
+	</node>
+	
+  	<node pkg="fix2pose" type="fix2tfpose" name="rtk_pose">
+		<param name="pub_topic_pose" value="rtk_pose"/>
+		<param name="sub_topic_gps" value="rtk/fix"/>
+		<param name="sub_topic_yaw" value="n280_yaw"/>
+		<param name="pose_frame_id" value="base_link"/>
+		<param name="origin_lat" value="31.027"/>
+		<param name="origin_lon" value="121.433"/>
+    </node>
+    
+  	<node pkg="fix2pose" type="pose2path" name="rtk_path">
+		<remap from="truth_path" to="rtk_path"/>
+		<remap from="truth_pose" to="rtk_pose"/>
+    </node>
+    
+  	<node pkg="fix2pose" type="fix2tfpose" name="fusion_pose">
+		<param name="pub_topic_pose" value="fusion_pose"/>
+		<param name="sub_topic_gps" value="gps_filtered"/>
+		<param name="sub_topic_yaw" value="yaw_filtered"/>
+		<param name="pose_frame_id" value="fusion"/>
+		<param name="origin_lat" value="31.027"/>
+		<param name="origin_lon" value="121.433"/>
+    </node>
+    
+  	<node pkg="fix2pose" type="pose2path" name="fusion_path">
+  		<remap from="truth_path" to="fusion_path"/>
+		<remap from="truth_pose" to="fusion_pose"/>
+    </node>
+    
+    <node pkg="fix2pose" type="n280conv" name="n280conv">
+    </node>
+</launch>
