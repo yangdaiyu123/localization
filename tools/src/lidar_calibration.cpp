@@ -29,7 +29,9 @@ ros::Publisher	pub_front;
 ros::Publisher	pub_rear;
 
 double front_pitch = 0;//degree
+double rear_roll = 0;//degree
 double rear_pitch = 0;//degree
+double rear_yaw = 0;//degree
 double front_tx = 0;
 double front_ty = 0;
 double front_tz = 0;
@@ -51,8 +53,9 @@ void rearPointCloudCallback(const sensor_msgs::PointCloud2::ConstPtr& msg)
 
 	Eigen::Affine3f transform = Eigen::Affine3f::Identity();
 	transform.translation() << rear_tx, rear_ty, rear_tz;
-	transform.rotate(Eigen::AngleAxisf(M_PI, Eigen::Vector3f::UnitZ()));
+	transform.rotate(Eigen::AngleAxisf(M_PI/2.0, Eigen::Vector3f::UnitZ()));
 	transform.rotate(Eigen::AngleAxisf(rear_pitch*M_PI/180, Eigen::Vector3f::UnitY()));
+	transform.rotate(Eigen::AngleAxisf(rear_roll*M_PI/180, Eigen::Vector3f::UnitX()));
 	pcl::transformPointCloud(*cloud_in, *cloud_in, transform);
 
 	pcl::PassThrough<pcl::PointXYZI> pass;
@@ -60,6 +63,11 @@ void rearPointCloudCallback(const sensor_msgs::PointCloud2::ConstPtr& msg)
 	pass.setFilterFieldName("y");
 	pass.setFilterLimits(-15,15);
 	pass.filter(*cloud_in);
+	
+	cloud_in->header.frame_id = "base_link";
+	
+	for(int i=0; i<1000; i++)
+			cout<<"x: "<<cloud_in->points[i].x<<"\ty: "<<cloud_in->points[i].x<<"\tz: "<<cloud_in->points[i].z<<endl;
 
 	sensor_msgs::PointCloud2 cloud_to_pub;
     pcl::toROSMsg(*cloud_in, cloud_to_pub);
@@ -81,6 +89,8 @@ void frontPointCloudCallback(const sensor_msgs::PointCloud2::ConstPtr& msg)
 	pass.setFilterFieldName("y");
 	pass.setFilterLimits(-15,15);
 	pass.filter(*cloud_in);
+	
+	cloud_in->header.frame_id = "base_link";
 
 	sensor_msgs::PointCloud2 cloud_to_pub;
     pcl::toROSMsg(*cloud_in, cloud_to_pub);
@@ -93,7 +103,9 @@ void configCallback(tools::lidar_calibrationConfig &config, uint32_t level)
 	front_tx = config.front_tx;
 	front_ty = config.front_ty;
 	front_tz = config.front_tz;
+	rear_roll = config.rear_roll;
 	rear_pitch = config.rear_pitch;
+	rear_yaw = config.rear_yaw;
 	rear_tx = config.rear_tx;
 	rear_ty = config.rear_ty;
 	rear_tz = config.rear_tz;
@@ -104,17 +116,19 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "lidar_calibration");
 	ros::NodeHandle nh;
-	ros::Subscriber sub_rear_cloud = nh.subscribe("/left/velodyne_points",2,rearPointCloudCallback);
+	ros::Subscriber sub_rear_cloud = nh.subscribe("/rear/velodyne_points",2,rearPointCloudCallback);
 	ros::Subscriber sub_front_cloud = nh.subscribe("velodyne_points",2,frontPointCloudCallback);
-	pub_rear = nh.advertise<sensor_msgs::PointCloud2>("rear_points_transformed",2);
-	pub_front = nh.advertise<sensor_msgs::PointCloud2>("front_points_transformed",2);
+	pub_rear = nh.advertise<sensor_msgs::PointCloud2>("rear_points_in_base_link",2);
+	pub_front = nh.advertise<sensor_msgs::PointCloud2>("front_points_in_base_link",2);
 
 	ros::NodeHandle pnh("~");
 	pnh.param("front_pitch", front_pitch,0.0);
 	pnh.param("front_tx", front_tx,0.0);
 	pnh.param("front_ty", front_ty,0.0);
 	pnh.param("front_tz", front_tz,0.0);
+	pnh.param("rear_roll", rear_roll,0.0);
 	pnh.param("rear_pitch", rear_pitch,0.0);
+	pnh.param("rear_yaw", rear_yaw,0.0);
 	pnh.param("rear_tx", rear_tx,0.0);
 	pnh.param("rear_ty", rear_ty,0.0);
 	pnh.param("rear_tz", rear_tz,0.0);
