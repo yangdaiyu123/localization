@@ -3,8 +3,8 @@
   	<node pkg="fix2pose" type="fix2tfpose" name="rtk_pose">
 		<param name="topic_pose" value="rtk_pose"/>
 		<param name="topic_gps" value="rtk/fix"/>
-		<param name="frame_id" value="rtk"/>
-		<param name="topic_yaw" value="yaw_filtered"/>
+		<param name="frame_id" value="base_link"/>
+		<param name="topic_yaw" value="n280_yaw"/>
 		<param name="origin_lat" value="31.027"/>
 		<param name="origin_lon" value="121.433"/>
 
