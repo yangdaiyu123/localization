@@ -52,7 +52,7 @@ pcl::PointCloud<pcl::PointXYZI> arrayToCloudXYZI(const vector<pcl::PointCloud<pc
 	pcl::PointXYZI p;
 	for(int ring_id=0; ring_id<cloud_array.size(); ring_id++)
 	{
-		for(int point_id=0; point_id < cloud_array[ring_id].size(); point_id++)
+		for(int point_id=0; point_id < cloud_array[ring_id].points.size(); point_id++)
 		{
 			p.x = cloud_array[ring_id].points[point_id].x;
 			p.y = cloud_array[ring_id].points[point_id].y;
@@ -70,7 +70,7 @@ pcl::PointCloud<pcl::PointXYZ> arrayToCloudXYZ(const vector<pcl::PointCloud<pcl:
 	pcl::PointXYZ p;
 	for(int ring_id=0; ring_id<cloud_array.size(); ring_id++)
 	{
-		for(int point_id=0; point_id < cloud_array[ring_id].size(); point_id++)
+		for(int point_id=0; point_id < cloud_array[ring_id].points.size(); point_id++)
 		{
 			p.x = cloud_array[ring_id].points[point_id].x;
 			p.y = cloud_array[ring_id].points[point_id].y;
@@ -87,7 +87,7 @@ pcl::PointCloud<pcl::PointXYZRGB> arrayToColorCloud(const vector<pcl::PointCloud
 	pcl::PointXYZRGB p;
 	for(int ring_id=0; ring_id<cloud_array.size(); ring_id++)
 	{
-		for(int point_id=0; point_id < cloud_array[ring_id].size(); point_id++)
+		for(int point_id=0; point_id < cloud_array[ring_id].points.size(); point_id++)
 		{
 			p.x = cloud_array[ring_id].points[point_id].x;
 			p.y = cloud_array[ring_id].points[point_id].y;

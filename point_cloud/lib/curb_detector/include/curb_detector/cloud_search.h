@@ -219,7 +219,7 @@ vector<pcl::PointCloud<PointT> > searchRearRight(const vector<pcl::PointCloud<Po
 	int ring_total = cloud_sorted.size();
 	mark_points.resize(ring_total);
 
-	for(int ring_id=0; ring_id < ring_total; ring_id++)
+	for(int ring_id=5; ring_id < ring_total; ring_id++)
 	{
 		pcl::PointCloud<pcl::PointXYZI> edge_points;
 		if(cloud_sorted[ring_id].points.size() < 20)
@@ -255,7 +255,7 @@ vector<pcl::PointCloud<PointT> > searchRearLeft(const vector<pcl::PointCloud<Poi
 	int ring_total = cloud_sorted.size();
 	mark_points.resize(ring_total);
 
-	for(int ring_id=0; ring_id < ring_total; ring_id++)
+	for(int ring_id=5; ring_id < ring_total; ring_id++)
 	{
 		pcl::PointCloud<pcl::PointXYZI> edge_points;
 		if(cloud_sorted[ring_id].points.size() < 20)
