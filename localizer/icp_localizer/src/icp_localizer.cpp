@@ -6,143 +6,100 @@ const double ODOMETRY_FACTOR = 0.0210386;
 
 ICPLocalizer::ICPLocalizer()
 {
-	sub_pulse = nh.subscribe("/pulse", 2, &ICPLocalizer::pulseCallback, this);
-	sub_gps = nh.subscribe("/gps_filtered", 2, &ICPLocalizer::gpsCallback, this);
-	sub_heading = nh.subscribe("/yaw_filtered", 2, &ICPLocalizer::headingCallback, this);
-	sub_pose = nh.subscribe("/estimate_pose", 2, &ICPLocalizer::poseCallback, this);
-	sub_imu = nh.subscribe("/imu_torso/xsens/data", 2, &ICPLocalizer::imuCallback, this);
+	sub_map = nh.subscribe("point_map",2, &ICPLocalizer::mapCallback, this);
+	sub_points = nh.subscribe("feature_points_sum",2, &ICPLocalizer::featurePointsCallback, this);
+	sub_pose = nh.subscribe("estimate_pose", 2, &ICPLocalizer::poseCallback, this);
 
-	sub_front_curb = nh.subscribe("front_curb_raw",2, &ICPLocalizer::frontCurbCallback, this);
-	sub_rear_curb = nh.subscribe("rear_curb_raw",2, &ICPLocalizer::rearCurbCallback, this);
-	sub_sign = nh.subscribe("sign_points",2, &ICPLocalizer::signCallback, this);
+	pub_icp_pose = nh.advertise<geometry_msgs::PoseStamped>("icp_pose", 2);
+//	pub_pose_fixed = nh.advertise<geometry_msgs::PoseStamped>("fix")
+	
+	maximum_iterations = 500;
+	transformation_epsilon = 0.01;
+	max_correspondence_distance = 10.0;
+	euclidean_fitness_epsilon = 0.1;
+	ransac_outlier_rejection_threshold = 1.0;
+	fitness_score = 0;
 
-	pub_cloud_sum = nh.advertise<sensor_msgs::PointCloud2>("feature_points_sum", 2);
+	map_loaded = false;
 
-	front_odom_inc = 0;
-	rear_odom_inc = 0;
-	sign_odom_inc = 0;
-	front_yaw_inc = 0;
-	rear_odom_inc = 0;
-	sign_yaw_inc = 0;
-	cloud_sum = pcl::PointCloud<PointXYZO>::Ptr(new pcl::PointCloud<PointXYZO>);
-
-	ros::MultiThreadedSpinner spinner(4);
+	ros::MultiThreadedSpinner spinner(8);
 	spinner.spin();
 }
 
-void ICPLocalizer::frontCurbCallback(const OPointCloud::ConstPtr &input)
+void ICPLocalizer::mapCallback(const sensor_msgs::PointCloud2::ConstPtr& input)
 {
-	cout<<"front_odom_inc: "<<front_odom_inc<<endl;
-	try
-	{
-		static tf::TransformListener trf_listener1;
-		trf_listener1.lookupTransform("map", "base_link", ros::Time(0), trans_front);
-		pcl::PointCloud<PointXYZO>::Ptr cloud_out(new pcl::PointCloud<PointXYZO>);
+	pcl::PointCloud<pcl::PointXYZ> map;
+    pcl::fromROSMsg(*input, map);
 
-		for (int i=0; i<input->size(); i++)
-		{
-		    tf::Vector3 pt(input->points[i].x, input->points[i].y, input->points[i].z);
-		    tf::Vector3 converted = trans_front * pt;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr map_ptr(new pcl::PointCloud<pcl::PointXYZ>(map));
 
-			double yaw, pitch, roll;
-			trans_front.getBasis().getRPY(roll, pitch, yaw);
+    icp.setInputTarget(map_ptr);
+//    std::cout << "setInputTarget finished." << std::endl;
 
-		    PointXYZO point_in_map;
-		    point_in_map.x = converted.x();
-		    point_in_map.y = converted.y();
-		    point_in_map.z = converted.z();
-		    point_in_map.orientation = input->points[i].orientation;
-
-		    cloud_out->push_back(point_in_map);
-		}
-
-		cloud_out->header.frame_id = "map";
-
-		*cloud_sum += *cloud_out;
-		fifo_size.push_back(cloud_out->size());
-
-		cloud_sum->header.frame_id = "map";
-		sensor_msgs::PointCloud2 cloud_to_pub;
-		pcl::toROSMsg(*cloud_sum, cloud_to_pub);
-		pub_cloud_sum.publish(cloud_to_pub);
-	}
-	catch (tf::TransformException ex) {
-        ROS_INFO("%s", ex.what());
-        ros::Duration(0.01).sleep();
-    }
-
-	if(fifo_size.size()>100)
-	{
-		cloud_sum->erase(cloud_sum->begin(), cloud_sum->begin() + fifo_size[0]);
-		fifo_size.erase(fifo_size.begin());
-	}
-
-	front_odom_inc = 0;
-	front_yaw_inc = 0;
+    map_loaded = true;
+ 
 }
 
-void ICPLocalizer::rearCurbCallback(const sensor_msgs::PointCloud2::ConstPtr& input)
+void ICPLocalizer::featurePointsCallback(const sensor_msgs::PointCloud2::ConstPtr& input)
 {
-//	cout<<"rear_odom_inc: "<<rear_odom_inc<<endl;
+	pcl::PointCloud<pcl::PointXYZ> feature_points;
+    pcl::fromROSMsg(*input, feature_points);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr feature_points_ptr(new pcl::PointCloud<pcl::PointXYZ>(feature_points));
+    
+    icp.setInputSource(feature_points_ptr);
+    
+    pcl::PointCloud<pcl::PointXYZ>::Ptr output_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+    
+    icp.setMaximumIterations(maximum_iterations);
+    icp.setTransformationEpsilon(transformation_epsilon);
+    icp.setMaxCorrespondenceDistance(max_correspondence_distance);
+    icp.setEuclideanFitnessEpsilon(euclidean_fitness_epsilon);
+    icp.setRANSACOutlierRejectionThreshold(ransac_outlier_rejection_threshold);
 
+	icp.align (*output_cloud);  
+	
+	Eigen::Matrix4f t = icp.getFinalTransformation();
+	fix_matrix = t;
+	tf::Matrix3x3 mat_l;  // localizer
+	mat_l.setValue(static_cast<double>(t(0, 0)), static_cast<double>(t(0, 1)), static_cast<double>(t(0, 2)),
+	               static_cast<double>(t(1, 0)), static_cast<double>(t(1, 1)), static_cast<double>(t(1, 2)),
+	               static_cast<double>(t(2, 0)), static_cast<double>(t(2, 1)), static_cast<double>(t(2, 2)));
 
-	rear_odom_inc = 0;
-	front_yaw_inc = 0;
-}
+	double x,y,z;
+	double roll,pitch,yaw;
+	// Update localizer_pose
+	x = t(0, 3);
+	y = t(1, 3);
+	z = t(2, 3);
+	mat_l.getRPY(roll, pitch, yaw, 1);
+//		std::cout << transformation << std::endl;
+//	std::cout<<"x: "<<x<<"\ty: "<<y<<"\tz: "<<z<<std::endl;
+//	std::cout<<"roll: "<<roll<<"\tpitch: "<<pitch<<"\tyaw: "<<yaw<<std::endl;
 
-void ICPLocalizer::signCallback(const sensor_msgs::PointCloud2::ConstPtr& input)
-{
-//	cout<<"sign_odom_inc: "<<sign_odom_inc<<endl;
-
-
-	sign_odom_inc = 0;
-	sign_yaw_inc = 0;
 }
 
 void ICPLocalizer::poseCallback(const geometry_msgs::PoseStamped::ConstPtr& input)
 {
-	double roll, pitch, yaw;
-	tf::Quaternion q;
-    tf::quaternionMsgToTF(input->pose.orientation, q);
-    tf::Matrix3x3(q).getRPY(roll, pitch, yaw);
+//	cout<<fix_matrix<<endl;	
 
-    double x = input->pose.position.x;
-    double y = input->pose.position.y;
-    double z = input->pose.position.z;
+	geometry_msgs::PoseStamped pose_fixed;
+	pose_fixed.pose.position.x = input->pose.position.x + fix_matrix(0, 3);
+	pose_fixed.pose.position.y = input->pose.position.y + fix_matrix(1, 3);
+	pose_fixed.pose.position.z = input->pose.position.z + fix_matrix(2, 3);
+	pose_fixed.pose.orientation = input->pose.orientation;
+	
+	pose_fixed.header.frame_id = "icp_pose";
+	
+	static tf::TransformBroadcaster br_filtered;
+    tf::Transform transform_filtered;  
+    tf::Quaternion q_filtered(pose_fixed.pose.orientation.x, pose_fixed.pose.orientation.y, pose_fixed.pose.orientation.z, pose_fixed.pose.orientation.w);
 
-    Eigen::Affine3f trans = Eigen::Affine3f::Identity();
-	trans.translation() << x, y, z;
-	trans.rotate(Eigen::AngleAxisf(yaw, Eigen::Vector3f::UnitZ()));
+    transform_filtered.setOrigin(tf::Vector3(pose_fixed.pose.position.x, pose_fixed.pose.position.y,pose_fixed.pose.position.z));
 
-	b_to_m = trans;
-}
-
-void ICPLocalizer::pulseCallback(const std_msgs::Int8MultiArray::ConstPtr& input)
-{
-//	cout<<"pulse0: "<<(int)input->data[0]<<"\tpulse1: "<<(int)input->data[1]<<endl;
-	int pulse_inc = (int)input->data[0] + (int)input->data[0];
-	float odom_inc = pulse_inc * ODOMETRY_FACTOR / 2.0;
-	front_odom_inc += odom_inc;
-	rear_odom_inc += odom_inc;
-	sign_odom_inc += odom_inc;
-}
-
-void ICPLocalizer::gpsCallback(const sensor_msgs::NavSatFixConstPtr& input)
-{
-//	cout<<"longitude: "<<input->longitude<<"\tlatitude: "<<input->latitude<<endl;
-}
-
-void ICPLocalizer::headingCallback(const std_msgs::Float64::ConstPtr& input)
-{
-
-}
-
-void ICPLocalizer::imuCallback(const sensor_msgs::Imu::ConstPtr& input)
-{
-//	cout<<"yaw: "<<input->angular_velocity.z<<endl;
-	front_yaw_inc += input->angular_velocity.z;
-	rear_yaw_inc += input->angular_velocity.z;
-	sign_yaw_inc += input->angular_velocity.z;
+    transform_filtered.setRotation(q_filtered);
+    br_filtered.sendTransform( tf::StampedTransform(transform_filtered, input->header.stamp, "map" , "icp_pose"));
+	
+	pub_icp_pose.publish(pose_fixed);
 }
 
 int main(int argc, char **argv)

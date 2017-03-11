@@ -33,6 +33,7 @@
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
 #include "tf/transform_datatypes.h"
+#include <tf/transform_broadcaster.h>
 #include <sstream>
 
 #include "cloud_accumulator.h"
@@ -46,45 +47,34 @@ class ICPLocalizer
 {
 public:
 	ICPLocalizer();
-	void pulseCallback(const std_msgs::Int8MultiArray::ConstPtr& input);
-	void gpsCallback(const sensor_msgs::NavSatFixConstPtr& input);
-	void headingCallback(const std_msgs::Float64::ConstPtr& input);
+	void mapCallback(const sensor_msgs::PointCloud2::ConstPtr& input);
+	void featurePointsCallback(const sensor_msgs::PointCloud2::ConstPtr& input);
 	void poseCallback(const geometry_msgs::PoseStamped::ConstPtr& input);
-	void imuCallback(const sensor_msgs::Imu::ConstPtr& input);
-	void frontCurbCallback(const OPointCloud::ConstPtr &input);
-	void rearCurbCallback(const sensor_msgs::PointCloud2::ConstPtr& input);
-	void signCallback(const sensor_msgs::PointCloud2::ConstPtr& input);
-
 
 
 
 private:
 	ros::NodeHandle nh;
-	ros::Subscriber sub_pulse;
-	ros::Subscriber sub_gps;
-	ros::Subscriber sub_heading;
+	ros::Subscriber sub_map;
+	ros::Subscriber sub_points;
 	ros::Subscriber sub_pose;
-	ros::Subscriber sub_imu;
-	ros::Subscriber sub_front_curb;
-	ros::Subscriber sub_rear_curb;
-	ros::Subscriber sub_sign;
 
-	ros::Publisher pub_cloud_sum;
 
-	Cloudaccumulator<pcl::PointXYZ> front_accu;
+	ros::Publisher pub_icp_pose;
+	ros::Publisher pub_pose_fixed;
 
-	float front_odom_inc;
-	float rear_odom_inc;
-	float sign_odom_inc;
-	float front_yaw_inc;
-	float rear_yaw_inc;
-	float sign_yaw_inc;
-
-	Eigen::Affine3f b_to_m;
-	pcl::PointCloud<PointXYZO>::Ptr cloud_sum;
-	std::vector<int> fifo_size;
-
-	tf::StampedTransform trans_front;
+	pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
+	// Default values for ICP
+	int maximum_iterations;
+	double transformation_epsilon;
+	double max_correspondence_distance;
+	double euclidean_fitness_epsilon;
+	double ransac_outlier_rejection_threshold;
+	double fitness_score;
+	
+	bool map_loaded;
+	
+	Eigen::Matrix4f fix_matrix;
 };
 
 
