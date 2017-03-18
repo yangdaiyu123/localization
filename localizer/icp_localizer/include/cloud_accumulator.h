@@ -59,6 +59,8 @@ private:
 	ros::Subscriber sub_rtk_pose;
 	ros::Subscriber sub_est_pose;
 	bool use_rtk;
+	bool is_inited;
+	bool rec_est_pose;
 	
 	ros::Subscriber sub_pulse;
 	ros::Subscriber sub_imu;

@@ -8,7 +8,7 @@ Cloudaccumulator::Cloudaccumulator()
 {
 	sub_pulse = nh.subscribe("/pulse", 2, &Cloudaccumulator::pulseCallback, this);
 	sub_rtk_pose = nh.subscribe("/rtk_pose", 2, &Cloudaccumulator::rtkPoseCallback, this);
-	sub_est_pose = nh.subscribe("/estimate_pose", 2, &Cloudaccumulator::estPoseCallback, this);
+	sub_est_pose = nh.subscribe("/icp_pose", 2, &Cloudaccumulator::estPoseCallback, this);
 
 	sub_front_curb = nh.subscribe("front_curb_raw",2, &Cloudaccumulator::frontCurbCallback, this);
 	sub_rear_curb = nh.subscribe("rear_curb_raw",2, &Cloudaccumulator::rearCurbCallback, this);
@@ -19,6 +19,8 @@ Cloudaccumulator::Cloudaccumulator()
 	cloud_sum = pcl::PointCloud<PointXYZO>::Ptr(new pcl::PointCloud<PointXYZO>);
 	
 	use_rtk = true;
+	is_inited = false;
+	rec_est_pose = false;
 	odom_sum = 0.0;
 
 	ros::MultiThreadedSpinner spinner(4);
@@ -27,11 +29,21 @@ Cloudaccumulator::Cloudaccumulator()
 
 void Cloudaccumulator::frontCurbCallback(const OPointCloud::ConstPtr &input)
 {
-	if(use_rtk)
-		cout<<"rtk\n"<<b_to_m.matrix()<<endl;	
-	else
-		cout<<"est\n"<<b_to_m.matrix()<<endl;	
-		
+//	if(use_rtk)
+//		cout<<"rtk\n"<<b_to_m.matrix()<<endl;	
+//	else
+//		cout<<"est\n"<<b_to_m.matrix()<<endl;	
+
+	if(input->empty() && is_inited)
+	{
+		cloud_in_map.header.frame_id = "map";
+		pcl_conversions::toPCL(ros::Time::now(), cloud_in_map.header.stamp);
+		sensor_msgs::PointCloud2 cloud_to_pub;
+		pcl::toROSMsg(cloud_in_map, cloud_to_pub);
+		pub_cloud_sum.publish(cloud_to_pub);
+		return;
+	}
+
 	PointXYZO po;
 	cloud_new.clear();
 	for(int i=0; i<input->points.size(); i++)
@@ -52,10 +64,14 @@ void Cloudaccumulator::frontCurbCallback(const OPointCloud::ConstPtr &input)
 		fifo_size.erase(fifo_size.begin());
 	}
 	
-	cloud_in_map.header.frame_id = "map";
-	sensor_msgs::PointCloud2 cloud_to_pub;
-	pcl::toROSMsg(cloud_in_map, cloud_to_pub);
-	pub_cloud_sum.publish(cloud_to_pub);
+	if(is_inited)
+	{
+		cloud_in_map.header.frame_id = "map";
+		pcl_conversions::toPCL(ros::Time::now(), cloud_in_map.header.stamp);
+		sensor_msgs::PointCloud2 cloud_to_pub;
+		pcl::toROSMsg(cloud_in_map, cloud_to_pub);
+		pub_cloud_sum.publish(cloud_to_pub);
+	}
 
 	
 	
@@ -92,7 +108,7 @@ void Cloudaccumulator::rtkPoseCallback(const geometry_msgs::PoseStamped::ConstPt
 	trans.translation() << x, y, z;
 	trans.rotate(Eigen::AngleAxisf(yaw, Eigen::Vector3f::UnitZ()));
 
-	if(use_rtk)	b_to_m = trans;
+	if( !is_inited || !rec_est_pose )	b_to_m = trans;
 	
 //	cout<<"rtk\t"<<"x: "<<x<<" "<<"y: "<<y<<" "<<"z: "<<z<<" "<<"yaw: "<<yaw<<endl;
 }
@@ -112,7 +128,8 @@ void Cloudaccumulator::estPoseCallback(const geometry_msgs::PoseStamped::ConstPt
 	trans.translation() << x, y, z;
 	trans.rotate(Eigen::AngleAxisf(yaw, Eigen::Vector3f::UnitZ()));
 	
-	if(!use_rtk)	b_to_m = trans;
+	rec_est_pose = true;
+	if(is_inited)	b_to_m = trans;
 	
 //	cout<<"est\t"<<"x: "<<x<<" "<<"y: "<<y<<" "<<"z: "<<z<<" "<<"yaw: "<<yaw<<endl;
 }
@@ -121,12 +138,12 @@ void Cloudaccumulator::pulseCallback(const std_msgs::Int8MultiArray::ConstPtr& i
 {
 	int pulse_inc = (int)input->data[0] + (int)input->data[0];
 	float odom_inc = pulse_inc * ODOMETRY_FACTOR / 2.0;
-	if(use_rtk==true)
+	if( !is_inited )
 		odom_sum += odom_inc;
 	
 	if(odom_sum > 60)
 	{
-		use_rtk = false;
+		is_inited = true;
 		odom_sum = 0;
 	}
 		
