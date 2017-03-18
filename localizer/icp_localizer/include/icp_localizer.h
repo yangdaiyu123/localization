@@ -9,6 +9,7 @@
 #include "std_msgs/Int8MultiArray.h"
 #include "std_msgs/Int32MultiArray.h"
 #include "std_msgs/Float64MultiArray.h"
+#include "std_msgs/Bool.h"
 
 #include <pcl/common/common_headers.h>
 #include <pcl/point_types.h>
@@ -42,6 +43,7 @@
 
 #include <vector>
 
+const double ODOMETRY_FACTOR = 0.0210386;
 
 class ICPLocalizer
 {
@@ -50,6 +52,9 @@ public:
 	void mapCallback(const sensor_msgs::PointCloud2::ConstPtr& input);
 	void featurePointsCallback(const sensor_msgs::PointCloud2::ConstPtr& input);
 	void poseCallback(const geometry_msgs::PoseStamped::ConstPtr& input);
+	void rtkCallback(const geometry_msgs::PoseStamped::ConstPtr& input);
+	void pulseCallback(const std_msgs::Int8MultiArray::ConstPtr& input);
+	void imuCallback(const sensor_msgs::Imu::ConstPtr& input);
 
 
 
@@ -58,6 +63,9 @@ private:
 	ros::Subscriber sub_map;
 	ros::Subscriber sub_points;
 	ros::Subscriber sub_pose;
+	ros::Subscriber sub_pulse;
+	ros::Subscriber sub_imu;
+	ros::Subscriber sub_rtk;
 
 
 	ros::Publisher pub_icp_pose;
@@ -73,8 +81,19 @@ private:
 	double fitness_score;
 	
 	bool map_loaded;
+	bool is_inited;
+	bool rece_imu;
+	
+	double curr_turn, last_turn, turn_inc;
+	double curr_odom, last_odom, odom_inc;
+	double curr_yaw, last_yaw;
+	double odom_t, turn_t;
 	
 	Eigen::Matrix4f fix_matrix;
+	geometry_msgs::PoseStamped curr_pose;
+	geometry_msgs::PoseStamped last_pose;
+	geometry_msgs::PoseStamped pred_pose;
+	geometry_msgs::PoseStamped rtk_pose;
 };
 
 
