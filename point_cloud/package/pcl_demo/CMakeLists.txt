@@ -56,6 +56,7 @@ set (BINNAME12 ndt_demo2)
 set (BINNAME13 point_xyzo)
 set (BINNAME14 icp_demo3)
 set (BINNAME15 write_oriented_pcd)
+set (BINNAME16 write_curb_map)
 
 ## Set the source files to use with the executable.
 set (SRCS1 ${SRCS1} src/write_pcd.cpp)
@@ -73,6 +74,7 @@ set (SRCS12 ${SRCS12} src/ndt_demo2.cpp)
 set (SRCS13 ${SRCS13} src/point_xyzo.cpp)
 set (SRCS14 ${SRCS14} src/icp_demo3.cpp)
 set (SRCS15 ${SRCS15} src/write_oriented_pcd.cpp)
+set (SRCS16 ${SRCS16} src/write_curb_map.cpp)
 
 # Build the executable that will be used to run this node.
 add_executable (${BINNAME1} ${SRCS1})
@@ -134,6 +136,10 @@ target_link_libraries(${BINNAME14} ${PCL_LIBRARIES})
 add_executable (${BINNAME15} ${SRCS15})
 target_link_libraries(${BINNAME15} ${catkin_LIBRARIES})
 target_link_libraries(${BINNAME15} ${PCL_LIBRARIES})
+
+add_executable (${BINNAME16} ${SRCS16})
+target_link_libraries(${BINNAME16} ${catkin_LIBRARIES})
+target_link_libraries(${BINNAME16} ${PCL_LIBRARIES})
 
 #install(DIRECTORY include/${PROJECT_NAME}/
 #  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
