@@ -72,6 +72,8 @@ private:
 	ros::Publisher pub_pose_fixed;
 
 	pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
+//	pcl::IterativeClosestPointWithNormals<pcl::PointXYZ, pcl::PointXYZ> icp_with_normals;
+	pcl::IterativeClosestPointWithNormals<pcl::PointXYZRGBNormal, pcl::PointXYZRGBNormal> icp_with_normals;
 	// Default values for ICP
 	int maximum_iterations;
 	double transformation_epsilon;
@@ -94,6 +96,9 @@ private:
 	geometry_msgs::PoseStamped last_pose;
 	geometry_msgs::PoseStamped pred_pose;
 	geometry_msgs::PoseStamped rtk_pose;
+	geometry_msgs::PoseStamped dr_pose;
+	int dr_cnt;
+	bool is_drift;
 };
 
 

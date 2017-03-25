@@ -18,14 +18,15 @@ ICPLocalizer::ICPLocalizer()
 	
 	maximum_iterations = 500;
 	transformation_epsilon = 0.01;
-	max_correspondence_distance = 1.0;
+	max_correspondence_distance = 2.0;
 	euclidean_fitness_epsilon = 0.1;
 	ransac_outlier_rejection_threshold = 1.0;
 	fitness_score = 0;
 
 	map_loaded = false;
 	is_inited = false;
-	rece_imu =false;
+	rece_imu = false;
+	is_drift = false;
 	curr_turn = 0.0;
 	last_turn = 0.0;
 	curr_yaw = 0.0;
@@ -62,6 +63,7 @@ void ICPLocalizer::featurePointsCallback(const sensor_msgs::PointCloud2::ConstPt
 		curr_pose = rtk_pose;
 		cout<<"init_x: "<<curr_pose.pose.position.x<<" "<<"last_y: "<<curr_pose.pose.position.y<<" "<<"last_z: "<<curr_pose.pose.position.z<<" "<<"last_yaw: "<<curr_yaw<<endl;
 		last_pose = rtk_pose;
+		dr_pose = rtk_pose;
 		last_turn = curr_turn;
 		last_odom = curr_odom;
 		
@@ -80,7 +82,18 @@ void ICPLocalizer::featurePointsCallback(const sensor_msgs::PointCloud2::ConstPt
 	
 	double inc_x = odom_inc * cos( curr_yaw );
 	double inc_y = odom_inc * sin( curr_yaw );
-
+	
+	dr_pose.pose.position.x += inc_x;
+	dr_pose.pose.position.y += inc_y;
+	dr_pose.pose.position.z = 0;
+	
+	tf::Quaternion dr_tfq;
+	dr_tfq.setRPY(0, 0, curr_yaw);
+	geometry_msgs::Quaternion dr_quat;
+	tf::quaternionTFToMsg(dr_tfq, dr_quat);
+	dr_pose.pose.orientation = dr_quat;
+	
+	
 //上帧定位＋航位推算＝预测初始匹配位姿
 	//pose
 	pred_pose.pose.position.x = last_pose.pose.position.x + inc_x;
@@ -130,7 +143,9 @@ void ICPLocalizer::featurePointsCallback(const sensor_msgs::PointCloud2::ConstPt
 
 	icp.align(*output_cloud);  
 	
+	fitness_score = icp.getFitnessScore();
 	Eigen::Matrix4f t = icp.getFinalTransformation();
+	
 	fix_matrix = t;
 	tf::Matrix3x3 mat_l;  // localizer
 	mat_l.setValue(static_cast<double>(t(0, 0)), static_cast<double>(t(0, 1)), static_cast<double>(t(0, 2)),
@@ -160,7 +175,37 @@ void ICPLocalizer::featurePointsCallback(const sensor_msgs::PointCloud2::ConstPt
 	tf::quaternionTFToMsg(cur_tfq, cur_quat);
 	curr_pose.pose.orientation = cur_quat;	
 	
-	if( fabs(fix_x) > 2 || fabs(fix_y) > 2)	curr_pose.pose.position = pred_pose.pose.position;
+//	if( fabs(fix_x) > 2 || fabs(fix_y) > 2)	curr_pose.pose.position = pred_pose.pose.position;
+	if(fabs(fix_x) < 0.5 && fabs(fix_y) < 0.5 && fitness_score < 0.03)
+		dr_pose = curr_pose;
+	else
+		curr_pose = dr_pose;
+		
+//	if( is_drift == false && fitness_score < 0.1 )
+//	{
+//		dr_pose = curr_pose;
+//		is_drift = false;
+//	}
+//	
+//	
+//	if( is_drift == false && fitness_score > 1 )
+//	{
+//		curr_pose = dr_pose;
+//		is_drift = true;
+//	}
+//	
+//	if( is_drift == true && fitness_score < 20 )
+//	{
+//		dr_pose = curr_pose;
+//		is_drift = false;
+//	}
+//	else if( is_drift == true )
+//	{
+//		curr_pose = dr_pose;
+//	}
+
+	
+	
 
 //上帧定位＝当前定位
 	last_pose.pose.position = curr_pose.pose.position;	
@@ -185,6 +230,7 @@ void ICPLocalizer::featurePointsCallback(const sensor_msgs::PointCloud2::ConstPt
 	cout<<"rtk_x : "<<rtk_pose.pose.position.x<<"\t"<<"rtk_y : "<<rtk_pose.pose.position.y<<"\t"<<"rtk_z : "<<rtk_pose.pose.position.z<<"\t"<<"rtk_yaw : "<<curr_yaw<<endl;
 	cout<<"fix_x : "<<fix_x<<"\t"<<"fix_y: "<<fix_y<<"\t"<<"fix_z : "<<fix_z<<"\t"<<"fix_yaw : "<<fix_yaw<<endl;
 	cout<<"inc_x : "<<inc_x<<"\t"<<"inc_y: "<<fix_y<<"\t"<<"inc_z : "<<fix_z<<"\t"<<"inc_yaw : "<<turn_inc<<endl;
+	cout<<"fitness_score: "<<fitness_score<<endl;
 
 	cout<<endl;
 
