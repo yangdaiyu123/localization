@@ -29,12 +29,21 @@ void pointCloudCallback(const sensor_msgs::PointCloud2::ConstPtr& msg)
 	pcl::fromROSMsg(*msg, *cloud_in);
 
 	Eigen::Affine3f transform = Eigen::Affine3f::Identity();
-	transform.translation() << 0.0, 0.0, 0.0;
+	transform.translation() << 0.0, 0.0, 1.9;
 	transform.rotate(Eigen::AngleAxisf(M_PI/2.0, Eigen::Vector3f::UnitZ()));
-	transform.rotate(Eigen::AngleAxisf(12.0*M_PI/180, Eigen::Vector3f::UnitY()));
+	transform.rotate(Eigen::AngleAxisf(14.0*M_PI/180, Eigen::Vector3f::UnitY()));
 	pcl::transformPointCloud(*cloud_in, *cloud_in, transform);
+	
+	pcl::PassThrough<pcl::PointXYZI> pass;
+	pass.setInputCloud(cloud_in);
+	pass.setFilterFieldName("x");
+	pass.setFilterLimits(-5,5);
+	pass.filter(*cloud_in);
+	pass.setFilterFieldName("z");
+	pass.setFilterLimits(-0.3,0.3);
+	pass.filter(*cloud_in);
 
-	cloud_in->header.frame_id = "front_lidar";
+	cloud_in->header.frame_id = "velodyne";
 
 	sensor_msgs::PointCloud2 cloud_to_pub;
     pcl::toROSMsg(*cloud_in, cloud_to_pub);

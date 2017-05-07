@@ -34,6 +34,8 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_sum(new pcl::PointCloud<pcl::PointXYZ
 ros::Publisher	pub_front;
 ros::Publisher	pub_rear;
 ros::Publisher	pub_top;
+ros::Publisher	pub_sum;
+
 
 double front_pitch = 0;//degree
 double rear_roll = 0;//degree
@@ -68,6 +70,7 @@ void synCurbCallback(const sensor_msgs::PointCloud2::ConstPtr& front_cloud_in,
 
 
 	*cloud_top = *cloud_front + *cloud_rear;
+	*cloud_sum = *cloud_front;
 
 	pcl::PassThrough<pcl::PointXYZI> pass;
 	pass.setInputCloud(cloud_front);
@@ -97,6 +100,7 @@ void synCurbCallback(const sensor_msgs::PointCloud2::ConstPtr& front_cloud_in,
 	cloud_front->header.frame_id = "base_link";
 	cloud_rear->header.frame_id = "base_link";
 	cloud_top->header.frame_id = "base_link";
+	cloud_sum->header.frame_id = "base_link";
 
 	sensor_msgs::PointCloud2 cloud_to_pub;
 
@@ -108,6 +112,9 @@ void synCurbCallback(const sensor_msgs::PointCloud2::ConstPtr& front_cloud_in,
 
     pcl::toROSMsg(*cloud_top, cloud_to_pub);
     pub_top.publish(cloud_to_pub);
+    
+    pcl::toROSMsg(*cloud_sum, cloud_to_pub);
+    pub_sum.publish(cloud_to_pub);
 }
 
 
@@ -126,6 +133,7 @@ int main(int argc, char **argv)
 	pub_front = nh.advertise<sensor_msgs::PointCloud2>("front_points_in_base_link",2);
 	pub_rear = nh.advertise<sensor_msgs::PointCloud2>("rear_points_in_base_link",2);
 	pub_top = nh.advertise<sensor_msgs::PointCloud2>("top_points_in_base_link",2);
+	pub_sum = nh.advertise<sensor_msgs::PointCloud2>("points_in_base_link",2);
 
 	ros::NodeHandle pnh("~");
 	pnh.param("front_pitch", front_pitch,14.0);
