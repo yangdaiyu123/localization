@@ -69,10 +69,10 @@ int main(int argc, char **argv)
 	double yaw = offset_yaw * (M_PI / 180.0);
 	double pitch = offset_pitch * (M_PI / 180.0);
 	marker.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(roll, pitch, yaw);
-	marker.color.r = 0.0;
-	marker.color.g = 0.0;
-	marker.color.b = 0.0;
-	marker.color.a = 0.0;
+	marker.color.r = 1;
+	marker.color.g = 1;
+	marker.color.b = 1;
+	marker.color.a = 1;
 	marker.scale.x = 1.0;
 	marker.scale.y = 1.0;
 	marker.scale.z = 1.0;

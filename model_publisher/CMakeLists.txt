@@ -117,6 +117,11 @@ include_directories(
 add_executable(model_publisher nodes/model_publisher.cpp)
 target_link_libraries(model_publisher ${catkin_LIBRARIES})
 
+add_executable(vehicle_state_publisher nodes/vehicle_state_publisher.cpp)
+target_link_libraries(vehicle_state_publisher ${catkin_LIBRARIES})
+
+add_executable(vehicle_state_publisher2 nodes/vehicle_state_publisher2.cpp)
+target_link_libraries(vehicle_state_publisher2 ${catkin_LIBRARIES})
 #############
 ## Install ##
 #############
