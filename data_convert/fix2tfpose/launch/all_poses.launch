@@ -28,6 +28,12 @@
 		<remap from="truth_pose" to="rtk_pose"/>
     </node>
     
+    
+  	<node pkg="fix2pose" type="pose2path" name="icp_path">
+		<remap from="truth_path" to="icp_path"/>
+		<remap from="truth_pose" to="icp_pose"/>
+    </node>
+    
   	<node pkg="fix2pose" type="fix2tfpose" name="fusion_pose">
 		<param name="pub_topic_pose" value="fusion_pose"/>
 		<param name="sub_topic_gps" value="gps_filtered"/>
