@@ -22,8 +22,9 @@ generate_messages(
   std_msgs
 )
 
-#generate_dynamic_reconfigure_options(
-#)
+generate_dynamic_reconfigure_options(
+  cfg/save.cfg
+)
 
 catkin_package(
   CATKIN_DEPENDS
@@ -42,12 +43,14 @@ include_directories(
 set (BINNAME1 icp_localizer)
 set (BINNAME2 cloud_accumulator)
 set (BINNAME3 ndt_localizer)
+set (BINNAME4 lcp_matching)
 
 
 ## Set the source files to use with the executable.
 set (SRCS1 ${SRCS1} src/icp_localizer.cpp)
 set (SRCS2 ${SRCS2} src/cloud_accumulator.cpp)
 set (SRCS3 ${SRCS3} src/ndt_localizer.cpp)
+set (SRCS4 ${SRCS4} src/lcp_matching.cpp)
 
 # Build the executable that will be used to run this node.
 add_executable (${BINNAME1} ${SRCS1})
@@ -61,6 +64,10 @@ target_link_libraries(${BINNAME2} ${PCL_LIBRARIES})
 add_executable (${BINNAME3} ${SRCS3})
 target_link_libraries(${BINNAME3} ${catkin_LIBRARIES})
 target_link_libraries(${BINNAME3} ${PCL_LIBRARIES})
+
+add_executable (${BINNAME4} ${SRCS4})
+target_link_libraries(${BINNAME4} ${catkin_LIBRARIES})
+target_link_libraries(${BINNAME4} ${PCL_LIBRARIES})
 
 #install(DIRECTORY include/${PROJECT_NAME}/
 #  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
