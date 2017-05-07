@@ -1,9 +1,9 @@
 <!-- -->
 <launch>
   	<node pkg="pcl_demo" type="load_pcd_grid" name="load_pcd_grid" output="screen">
-		<param name="map_path" value="/home/wlh/map/curb_point_map/"/>
+		<param name="map_path" value="/home/wlh/map/curb_point_map80/"/>
 		<param name="pose_type" value="/rtk_pose"/>
-		<param name="grid_scale" value="50"/>
+		<param name="grid_scale" value="80"/>
 
     </node>
 
