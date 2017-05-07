@@ -42,14 +42,20 @@ include_directories(
 
 # Set the name to use for the executable.
 set (BINNAME1 lidar_calibration)
+set (BINNAME2 sync_calibration)
 
 ## Set the source files to use with the executable.
 set (SRCS1 ${SRCS1} src/lidar_calibration.cpp)
+set (SRCS2 ${SRCS2} src/sync_calibration.cpp)
 
 # Build the executable that will be used to run this node.
 add_executable (${BINNAME1} ${SRCS1})
 target_link_libraries(${BINNAME1} ${catkin_LIBRARIES})
 target_link_libraries(${BINNAME1} ${PCL_LIBRARIES})
+
+add_executable (sync_lidar_calibration src/sync_calibration.cpp)
+target_link_libraries(sync_lidar_calibration ${catkin_LIBRARIES})
+target_link_libraries(sync_lidar_calibration ${PCL_LIBRARIES})
 
 #install(DIRECTORY include/${PROJECT_NAME}/
 #  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
