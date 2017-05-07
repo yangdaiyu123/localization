@@ -70,7 +70,7 @@ private:
 	ros::Subscriber sub_sign;
 
 	ros::Publisher pub_cloud_sum;
-
+	
 
 	Eigen::Affine3f b_to_m;
 	pcl::PointCloud<PointXYZO>::Ptr cloud_sum;
