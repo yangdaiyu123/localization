@@ -50,7 +50,7 @@ void Cloudaccumulator::frontCurbCallback(const OPointCloud::ConstPtr &input)
 	{
 		po.x = input->points[i].x;
 		po.y = input->points[i].y;
-		po.z = input->points[i].z;
+		po.z = 0;
 		po.orientation = input->points[i].orientation;
 		cloud_new.push_back(po);
 	}
@@ -58,7 +58,7 @@ void Cloudaccumulator::frontCurbCallback(const OPointCloud::ConstPtr &input)
 	cloud_in_map += cloud_new;
 	fifo_size.push_back(cloud_new.size());
 	
-	if (fifo_size.size()>100)
+	if (fifo_size.size()>500)
 	{
 		cloud_in_map.erase(cloud_in_map.begin(), cloud_in_map.begin() + fifo_size[0]);
 		fifo_size.erase(fifo_size.begin());
@@ -84,13 +84,23 @@ void Cloudaccumulator::rearCurbCallback(const OPointCloud::ConstPtr &input)
 {
 
 
-
 }
 
 void Cloudaccumulator::signCallback(const OPointCloud::ConstPtr &input)
 {
-
-
+//	PointXYZO po;
+//	cloud_new.clear();
+//	for(int i=0; i<input->points.size(); i++)
+//	{
+//		po.x = input->points[i].x;
+//		po.y = input->points[i].y;
+//		po.z = 0;
+//		po.orientation = input->points[i].orientation;
+//		cloud_new.push_back(po);
+//	}
+//	pcl::transformPointCloud(cloud_new, cloud_new, b_to_m);
+//	cloud_in_map += cloud_new;
+//	fifo_size.push_back(cloud_new.size());
 }
 
 void Cloudaccumulator::rtkPoseCallback(const geometry_msgs::PoseStamped::ConstPtr& input)
