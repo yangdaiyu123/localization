@@ -18,6 +18,7 @@ CurbDetection::CurbDetection()
 	pub_front_curb = nh.advertise<sensor_msgs::PointCloud2>("front_curb_raw",2);
 	pub_rear_curb = nh.advertise<sensor_msgs::PointCloud2>("rear_curb_raw",2);
 	pub_sign = nh.advertise<sensor_msgs::PointCloud2>("sign_points",2);
+	pub_marker = nh.advertise<sensor_msgs::PointCloud2>("marker_points",2);
 
 	detector = new CurbDetector;
 
@@ -71,6 +72,9 @@ void CurbDetection::frontPointCloudCallback(const VPointCloud::ConstPtr &inMsg)
 //------------------------------------------------------------------------------------------------------------
 	if(!inlier_points1.empty())	right_curb_dist = abs(inlier_points1.points[0].y+2);
     if(!inlier_points2.empty())	left_curb_dist = abs(inlier_points2.points[0].y+2);
+    
+//路面标志提取
+	marker_points = searchHeadMarkerPoints(cloud_sorted, 28, -2, 4);
 
 //发布路沿点云
 //------------------------------------------------------------------------------------------------------------
@@ -78,6 +82,10 @@ void CurbDetection::frontPointCloudCallback(const VPointCloud::ConstPtr &inMsg)
 	sensor_msgs::PointCloud2 cloud_to_pub;
 	pcl::toROSMsg(front_curb, cloud_to_pub);
 	pub_front_curb.publish(cloud_to_pub);
+	
+	marker_points.header.frame_id = "base_link";
+	pcl::toROSMsg(marker_points, cloud_to_pub);
+	pub_marker.publish(cloud_to_pub);
 
 //显示
 //------------------------------------------------------------------------------------------------------------

@@ -313,6 +313,26 @@ vector<pcl::PointCloud<PointT> > searchSignPoints(const vector<pcl::PointCloud<P
 	return	mark_points;
 }
 
+template <typename PointT>
+pcl::PointCloud<PointT> searchHeadMarkerPoints(const vector<pcl::PointCloud<PointT> > cloud_sorted, 
+															const int intensity_th, const float lateral_th1, const float lateral_th2)
+{
+	pcl::PointCloud<PointT> marker;
+	int ring_total = cloud_sorted.size();
+	for(int ring_id=4; ring_id < ring_total; ring_id++)
+	{
+		if(cloud_sorted[ring_id].points.size() < 20)	continue;
+		
+		for(int i=0; i<cloud_sorted[ring_id].points.size(); i++)
+		{
+			PointT pt = cloud_sorted[ring_id].points[i];
+			if( pt.y > lateral_th1 && pt.y < lateral_th2 && pt.intensity*4.0 > intensity_th )
+				marker.points.push_back(pt);
+		}
+	}
+	return marker;
+}
+
 }//namespace cloud_operation
 
 

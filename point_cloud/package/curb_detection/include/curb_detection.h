@@ -25,6 +25,7 @@ private:
 	ros::Publisher pub_front_curb;
 	ros::Publisher pub_rear_curb;
 	ros::Publisher pub_sign;
+	ros::Publisher pub_marker;
 	CurbDetector* detector;
 	int left_curb_dist;
 	int right_curb_dist;
@@ -32,6 +33,8 @@ private:
 	pcl::PointCloud<PointXYZO> front_curb;
 	pcl::PointCloud<PointXYZO> rear_curb;
 	pcl::PointCloud<PointXYZO> sign_points;
+	pcl::PointCloud<PointXYZI> marker_points;
+	
 };
 
 
