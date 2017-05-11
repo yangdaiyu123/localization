@@ -43,11 +43,13 @@ include_directories(
 set (BINNAME1 front_transform)
 set (BINNAME2 rear_transform)
 set (BINNAME3 point_to_base_link)
+set (BINNAME4 points_to_stixel)
 
 ## Set the source files to use with the executable.
 set (SRCS1 ${SRCS1} src/front_transform.cpp)
 set (SRCS2 ${SRCS2} src/rear_transform.cpp)
 set (SRCS3 ${SRCS3} src/point_to_base_link.cpp)
+set (SRCS4 ${SRCS4} src/points_to_stixel.cpp)
 
 # Build the executable that will be used to run this node.
 add_executable (${BINNAME1} ${SRCS1})
@@ -58,9 +60,13 @@ add_executable (${BINNAME2} ${SRCS2})
 target_link_libraries(${BINNAME2} ${catkin_LIBRARIES})
 target_link_libraries(${BINNAME2} ${PCL_LIBRARIES})
 
-add_executable (${BINNAME3} ${SRCS3})
-target_link_libraries(${BINNAME3} ${catkin_LIBRARIES})
-target_link_libraries(${BINNAME3} ${PCL_LIBRARIES})
+add_executable (${BINNAME4} ${SRCS4})
+target_link_libraries(${BINNAME4} ${catkin_LIBRARIES})
+target_link_libraries(${BINNAME4} ${PCL_LIBRARIES})
+
+#add_executable (${BINNAME3} ${SRCS3})
+#target_link_libraries(${BINNAME3} ${catkin_LIBRARIES})
+#target_link_libraries(${BINNAME3} ${PCL_LIBRARIES})
 #install(DIRECTORY include/${PROJECT_NAME}/
 #  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
 #  FILES_MATCHING PATTERN "*.h"
