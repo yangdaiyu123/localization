@@ -1,8 +1,8 @@
 <!-- -->
 <launch>
   	<node pkg="pcl_demo" type="write_curb_map" name="write_curb_map" output="screen">
-		<param name="map_path" value="/home/wlh/map/curb_point_map30/"/>
-		<param name="grid_scale" value="30"/>
+		<param name="map_path" value="/home/wlh/map/curb_point_map100/"/>
+		<param name="grid_scale" value="100"/>
 		<remap from="truth_pose" to="rtk_pose"/>
 
     </node>

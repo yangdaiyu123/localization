@@ -57,6 +57,9 @@ set (BINNAME13 point_xyzo)
 set (BINNAME14 icp_demo3)
 set (BINNAME15 write_oriented_pcd)
 set (BINNAME16 write_curb_map)
+set (BINNAME17 load_pcd_odom)
+set (BINNAME18 write_pcd_odom)
+set (BINNAME19 point_cloud_sync)
 
 ## Set the source files to use with the executable.
 set (SRCS1 ${SRCS1} src/write_pcd.cpp)
@@ -75,6 +78,9 @@ set (SRCS13 ${SRCS13} src/point_xyzo.cpp)
 set (SRCS14 ${SRCS14} src/icp_demo3.cpp)
 set (SRCS15 ${SRCS15} src/write_oriented_pcd.cpp)
 set (SRCS16 ${SRCS16} src/write_curb_map.cpp)
+set (SRCS17 ${SRCS17} src/load_pcd_odom.cpp)
+set (SRCS18 ${SRCS18} src/write_pcd_odom.cpp)
+set (SRCS19 ${SRCS19} src/point_cloud_sync.cpp)
 
 # Build the executable that will be used to run this node.
 add_executable (${BINNAME1} ${SRCS1})
@@ -140,6 +146,18 @@ target_link_libraries(${BINNAME15} ${PCL_LIBRARIES})
 add_executable (${BINNAME16} ${SRCS16})
 target_link_libraries(${BINNAME16} ${catkin_LIBRARIES})
 target_link_libraries(${BINNAME16} ${PCL_LIBRARIES})
+
+add_executable (${BINNAME17} ${SRCS17})
+target_link_libraries(${BINNAME17} ${catkin_LIBRARIES})
+target_link_libraries(${BINNAME17} ${PCL_LIBRARIES})
+
+add_executable (${BINNAME18} ${SRCS18})
+target_link_libraries(${BINNAME18} ${catkin_LIBRARIES})
+target_link_libraries(${BINNAME18} ${PCL_LIBRARIES})
+
+#add_executable (${BINNAME19} ${SRCS19})
+#target_link_libraries(${BINNAME19} ${catkin_LIBRARIES})
+#target_link_libraries(${BINNAME19} ${PCL_LIBRARIES})
 
 #install(DIRECTORY include/${PROJECT_NAME}/
 #  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}

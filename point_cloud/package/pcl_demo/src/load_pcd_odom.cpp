@@ -39,7 +39,13 @@ int last_grid_y = 0;
 
 string map_path;
 string pose_type;
-int grid_scale;
+int grid_scale=50;
+
+double travel_distance = 0;
+const double ODOMETRY_FACTOR = 0.0210386;
+int odom_section =0;
+int last_odom_section = -1;
+int odom_scale=50;
 
 template <typename PointT>
 void publish_map(ros::Publisher pub, pcl::PointCloud<PointT> cloud, const string frame_id)
@@ -50,44 +56,44 @@ void publish_map(ros::Publisher pub, pcl::PointCloud<PointT> cloud, const string
 	pub.publish(cloud_to_pub);
 }
 
-void gpsPoseCallback(geometry_msgs::PoseStamped pose_in)
+
+
+void pulseCallback(const std_msgs::Int8MultiArray::ConstPtr& input)
 {
-	int grid_x = int(pose_in.pose.position.x/grid_scale);
-	int grid_y = int(pose_in.pose.position.y/grid_scale);
-
-	cout<<"grid_x: "<<grid_x<<"\t"<<"grid_y: "<<grid_y<<endl;
-
-	if(grid_x ==  last_grid_x && grid_y == last_grid_y)
-	{
-		publish_map(pub_cloud, *cloud_sum, "map");
+	int pulse_inc = (int)input->data[0] + (int)input->data[0];
+	float odom_inc = pulse_inc * ODOMETRY_FACTOR / 2.0;
+	travel_distance += odom_inc;
+	
+	odom_section = travel_distance / odom_scale;
+	
+	if( odom_section ==  last_odom_section )
 		return;
-	}
-
+	
 	cloud_sum->clear();
-
-//	load_nearby_map(cloud_sum, grid_x, grid_y);
+	
 	pcl::PointCloud<PointXYZO>::Ptr cloud_in(new pcl::PointCloud<PointXYZO>);
 
-	for(int i=-2; i<=2; i++)
-		for(int j=-2; j<=2; j++)
-		{
-			std::stringstream ss;
-			ss<<grid_x+i<<"_"<<grid_y+j<<".pcd";
-//			cout<<ss.str()<<endl;
-			if (pcl::io::loadPCDFile<PointXYZO> (map_path+ss.str(), *cloud_in) == -1)
-				std::cout<<"read error\n";
-			else *cloud_sum += *cloud_in;
-		}
+	for(int i=-4; i<=1; i++)
+	{
+		std::stringstream ss;
+		ss<<odom_section+i<<".pcd";
+		if (pcl::io::loadPCDFile<PointXYZO> (map_path+ss.str(), *cloud_in) == -1)
+			std::cout<<"read error\n";
+		else *cloud_sum += *cloud_in;
+	}
+	
+	last_odom_section = odom_section;
 
+}
+
+void timerCallback(const ros::TimerEvent&)
+{
 	publish_map(pub_cloud, *cloud_sum, "map");
-
-	last_grid_x = grid_x;
-	last_grid_y = grid_y;
 }
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "load_pcd");
+	ros::init(argc, argv, "load_pcd_odom");
 
 	ros::NodeHandle nh;
 	pub_cloud = nh.advertise<sensor_msgs::PointCloud2>("point_map", 10, true);
@@ -95,9 +101,9 @@ int main(int argc, char **argv)
 	ros::NodeHandle pnh("~");
 	pnh.param<std::string>("map_path", map_path, "/home/wlh/map/oriented_point_map/");
 	pnh.param<std::string>("pose_type", pose_type, "/truth_pose");
-	pnh.param("grid_scale", grid_scale, 50);
-	ros::Subscriber sub_gps_pose = nh.subscribe(pose_type,2,gpsPoseCallback);
-
+	pnh.param("odom_scale", odom_scale, 50);
+	ros::Subscriber sub_pulse = nh.subscribe("pulse", 2, pulseCallback);
+	ros::Timer timer = nh.createTimer(ros::Duration(0.1), timerCallback);
 	ros::spin();
 
 
