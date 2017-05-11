@@ -19,7 +19,15 @@
 #include <pcl/common/transforms.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/filters/passthrough.h>
+#include <pcl/filters/impl/passthrough.hpp>
 #include <pcl/registration/icp.h>
+#include <pcl/filters/extract_indices.h>
+#include <pcl/filters/impl/extract_indices.hpp>
+#include <pcl/kdtree/kdtree.h>
+#include <pcl/search/kdtree.h>
+#include <pcl/kdtree/impl/kdtree_flann.hpp>
+#include <pcl/search/impl/kdtree.hpp>
+
 
 #include <pcl/visualization/impl/pcl_visualizer.hpp>
 #include <pcl/visualization/impl/point_cloud_geometry_handlers.hpp>
@@ -38,12 +46,16 @@
 #include <sstream>
 
 #include "cloud_accumulator.h"
+#include "lcp_matching.h"
 #include <pcl_ros/point_cloud.h>
 #include "point_xyzo.h"
 
 #include <vector>
 
-const double ODOMETRY_FACTOR = 0.0210386;
+#include <dynamic_reconfigure/server.h>
+#include <icp_localizer/saveConfig.h>
+
+const double ODOMETRY_FACTOR = 0.0212;
 
 class ICPLocalizer
 {
@@ -55,9 +67,13 @@ public:
 	void rtkCallback(const geometry_msgs::PoseStamped::ConstPtr& input);
 	void pulseCallback(const std_msgs::Int8MultiArray::ConstPtr& input);
 	void imuCallback(const sensor_msgs::Imu::ConstPtr& input);
-
-
-
+	void configCallback(icp_localizer::saveConfig &config, uint32_t level);
+	
+	void frontCurbCallback(const sensor_msgs::PointCloud2::ConstPtr& input);
+	void signCallback(const sensor_msgs::PointCloud2::ConstPtr& input);
+	
+	void points_dr_fifo(OPointCloud& cloud_sum, OPointCloud cloud_new, double odom_inc, double inc_yaw);
+	
 private:
 	ros::NodeHandle nh;
 	ros::Subscriber sub_map;
@@ -66,10 +82,18 @@ private:
 	ros::Subscriber sub_pulse;
 	ros::Subscriber sub_imu;
 	ros::Subscriber sub_rtk;
-
+	
+	ros::Subscriber sub_front_curb;
+	ros::Subscriber sub_sign;
 
 	ros::Publisher pub_icp_pose;
+	ros::Publisher pub_lcp_pose;
 	ros::Publisher pub_pose_fixed;
+	ros::Publisher pub_cloud_dr;
+	ros::Publisher pub_cloud_sample;
+	
+	dynamic_reconfigure::Server<icp_localizer::saveConfig> dr_srv;
+	dynamic_reconfigure::Server<icp_localizer::saveConfig>::CallbackType cb;
 
 	pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
 //	pcl::IterativeClosestPointWithNormals<pcl::PointXYZ, pcl::PointXYZ> icp_with_normals;
@@ -85,6 +109,8 @@ private:
 	bool map_loaded;
 	bool is_inited;
 	bool rece_imu;
+	bool save_point;
+	int save_cnt;
 	
 	double curr_turn, last_turn, turn_inc;
 	double curr_odom, last_odom, odom_inc;
@@ -99,6 +125,15 @@ private:
 	geometry_msgs::PoseStamped dr_pose;
 	int dr_cnt;
 	bool is_drift;
+	long int last_size;
+	
+	OPointCloud cloud_dr_sum;
+	OPointCloud cloud_dr_new;
+	
+	pcl::PointCloud<pcl::PointXYZ> front_curb;
+	pcl::PointCloud<pcl::PointXYZ> sign_points;
+	pcl::PointCloud<pcl::PointXYZ> cut_map;
+	pcl::PointCloud<pcl::PointXYZ> sign_map;
 };
 
 
