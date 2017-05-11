@@ -1,0 +1,16 @@
+<!-- -->
+<launch>
+    <!-- parse xacro file to description -->
+    <param name="robot_description" command="$(find xacro)/xacro '$(find model_publisher)/mkz.urdf.xacro'" />
+	<arg name="gui" default="True" />
+	<param name="use_gui" value="$(arg gui)"/>
+	<node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+	<node name="vehicle_state_publisher2" pkg="model_publisher" type="vehicle_state_publisher2" >
+		<param name="period" value = "0.1" />
+		<param name="speed_factor" value = "1.0" />
+		<param name="steer_factor" value = "0.12" />
+	</node>
+<!--	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />-->
+<!--	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find urdf_tutorial)/urdf.rviz" required="true" />-->
+
+</launch>
