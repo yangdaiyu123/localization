@@ -107,6 +107,14 @@ std::vector<pcl::PointXYZ> cloudToArray(const pcl::PointCloud<pcl::PointXYZ> clo
 	return points_set;
 }
 
+std::vector<pcl::PointCloud<pcl::PointXYZI> > cloudToCircularBlocks(const pcl::PointCloud<pcl::PointXYZI> input)
+{
+	std::vector<pcl::PointCloud<pcl::PointXYZI> > circular_blocks;
+
+
+	return circular_blocks;
+}
+
 
 }//namespace cloud_operation
 
