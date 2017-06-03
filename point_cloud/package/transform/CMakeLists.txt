@@ -60,6 +60,10 @@ add_executable (${BINNAME2} ${SRCS2})
 target_link_libraries(${BINNAME2} ${catkin_LIBRARIES})
 target_link_libraries(${BINNAME2} ${PCL_LIBRARIES})
 
+add_executable (${BINNAME3} ${SRCS3})
+target_link_libraries(${BINNAME3} ${catkin_LIBRARIES})
+target_link_libraries(${BINNAME3} ${PCL_LIBRARIES})
+
 add_executable (${BINNAME4} ${SRCS4})
 target_link_libraries(${BINNAME4} ${catkin_LIBRARIES})
 target_link_libraries(${BINNAME4} ${PCL_LIBRARIES})

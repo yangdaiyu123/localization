@@ -136,7 +136,7 @@ int main(int argc, char **argv)
 	pub_sum = nh.advertise<sensor_msgs::PointCloud2>("points_in_base_link",2);
 
 	ros::NodeHandle pnh("~");
-	pnh.param("front_pitch", front_pitch,14.0);
+	pnh.param("front_pitch", front_pitch,16.0);
 	pnh.param("front_tx", front_tx,0.0);
 	pnh.param("front_ty", front_ty,0.0);
 	pnh.param("front_tz", front_tz,1.9);
