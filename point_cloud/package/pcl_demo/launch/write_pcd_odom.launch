@@ -1,7 +1,7 @@
 <!-- -->
 <launch>
   	<node pkg="pcl_demo" type="write_pcd_odom" name="write_pcd_odom" output="screen">
-		<param name="map_path" value="/home/wlh/map/odom_point_map_with_marker2/"/>
+		<param name="map_path" value="/home/wlh/map/odom_point_map_with_pole/"/>
 		<param name="odom_scale" value="100"/>
 		<remap from="truth_pose" to="rtk_pose"/>
 
