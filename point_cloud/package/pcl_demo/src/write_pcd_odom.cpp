@@ -37,11 +37,13 @@ pcl::PointCloud<PointXYZO>::Ptr cloud_out(new pcl::PointCloud<PointXYZO>);
 pcl::PointCloud<PointXYZO>::Ptr cloud_curb(new pcl::PointCloud<PointXYZO>);
 pcl::PointCloud<PointXYZO>::Ptr cloud_sign(new pcl::PointCloud<PointXYZO>);
 pcl::PointCloud<PointXYZO>::Ptr cloud_marker(new pcl::PointCloud<PointXYZO>);
+pcl::PointCloud<PointXYZO>::Ptr cloud_pole(new pcl::PointCloud<PointXYZO>);
 
 tf::StampedTransform transform1;
 tf::StampedTransform transform2;
 tf::StampedTransform transform3;
 tf::StampedTransform transform4;
+tf::StampedTransform transform5;
 
 geometry_msgs::PoseStamped pose;
 vector<tf::Vector3> grid_array;
@@ -139,24 +141,54 @@ void signPointsCallback(const OPointCloud::ConstPtr &cloud_in)
 
 void markerPointsCallback(const OPointCloud::ConstPtr &cloud_in)
 {	
-	cout<<"receive marker"<<endl;
+//	cout<<"receive marker"<<endl;
+//	try
+//	{
+//		static tf::TransformListener trf_listener4;
+//        trf_listener4.lookupTransform("map", "base_link", ros::Time(0), transform4);
+
+//        for (int i=0; i<cloud_in->size(); i++)
+//        {
+//            tf::Vector3 pt(cloud_in->points[i].x, cloud_in->points[i].y, cloud_in->points[i].z);
+//            tf::Vector3 converted = transform4 * pt;
+
+//            PointXYZO point_in_map;
+//            point_in_map.x = converted.x();
+//            point_in_map.y = converted.y();
+//            point_in_map.z = converted.z();
+//            point_in_map.orientation = 10;
+
+//            cloud_marker->push_back(point_in_map);
+//        }
+//    }
+//    catch (tf::TransformException ex) {
+//        ROS_INFO("%s", ex.what());
+//        ros::Duration(0.01).sleep();
+//    }
+}
+
+void poleCallback(const sensor_msgs::PointCloud2::ConstPtr& cloud_in)
+{
+	pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_pole_in(new pcl::PointCloud<pcl::PointXYZI>);
+	pcl::fromROSMsg(*cloud_in, *cloud_pole_in);
+	std::cout<<"receive pole"<<std::endl;
 	try
 	{
-		static tf::TransformListener trf_listener4;
-        trf_listener4.lookupTransform("map", "base_link", ros::Time(0), transform4);
+		static tf::TransformListener trf_listener5;
+        trf_listener5.lookupTransform("map", "base_link", ros::Time(0), transform5);
 
-        for (int i=0; i<cloud_in->size(); i++)
+        for (int i=0; i<cloud_pole_in->size(); i++)
         {
-            tf::Vector3 pt(cloud_in->points[i].x, cloud_in->points[i].y, cloud_in->points[i].z);
-            tf::Vector3 converted = transform4 * pt;
+            tf::Vector3 pt(cloud_pole_in->points[i].x, cloud_pole_in->points[i].y, cloud_pole_in->points[i].z);
+            tf::Vector3 converted = transform5 * pt;
 
             PointXYZO point_in_map;
             point_in_map.x = converted.x();
             point_in_map.y = converted.y();
             point_in_map.z = converted.z();
-            point_in_map.orientation = 10;
+            point_in_map.orientation = 0;
 
-            cloud_marker->push_back(point_in_map);
+            cloud_pole->push_back(point_in_map);
         }
     }
     catch (tf::TransformException ex) {
@@ -165,50 +197,6 @@ void markerPointsCallback(const OPointCloud::ConstPtr &cloud_in)
     }
 }
 
-void gpsPoseCallback(geometry_msgs::PoseStamped pose_in)
-{
-//	pose = pose_in;
-
-//	*cloud_out = *cloud_curb + *cloud_sign;
-
-//	cout<<"x: "<<int(pose_in.pose.position.x/grid_scale)<<"\ty: "<<int(pose_in.pose.position.y/50)<<endl;
-
-//	int grid_x = int(pose_in.pose.position.x/grid_scale);
-//	int grid_y = int(pose_in.pose.position.y/grid_scale);
-
-//	if(grid.z() == 0)
-//	{
-//		grid.setX(grid_x);
-//		grid.setY(grid_y);
-//		grid.setZ(1);
-//	}
-//	else
-//	{
-//		if(grid_x != grid.x() || grid_y != grid.y() )
-//		{
-//			pcl::PointCloud<PointXYZO>::Ptr cloud_old(new pcl::PointCloud<PointXYZO>);
-//			std::stringstream ss;
-//			ss<<grid.x()<<"_"<<grid.y()<<".pcd";
-//			cout<<ss.str();
-
-//			if (pcl::io::loadPCDFile<PointXYZO> (map_path + ss.str(), *cloud_old) == -1)
-//				if(!cloud_out->empty())
-//					pcl::io::savePCDFileASCII (map_path + ss.str(), *cloud_out);
-//			else
-//			{
-//				*cloud_out += *cloud_old;
-//				if(!cloud_out->empty())
-//					pcl::io::savePCDFileASCII (map_path + ss.str(), *cloud_out);
-//			}
-
-//			cloud_out->clear();
-//			cloud_curb->clear();
-//			cloud_sign->clear();
-//			grid.setX(grid_x);
-//			grid.setY(grid_y);
-//		}
-//	}
-}
 
 void pulseCallback(const std_msgs::Int8MultiArray::ConstPtr& input)
 {
@@ -220,7 +208,7 @@ void pulseCallback(const std_msgs::Int8MultiArray::ConstPtr& input)
 
 	*cloud_out = *cloud_curb + *cloud_sign;
 	
-	*cloud_out += *cloud_marker;
+	*cloud_out += *cloud_pole;
 	
 //	cout<<"odom: "<<travel_distance<<" "<<"odom_section: "<<odom_section<<endl;
 
@@ -246,6 +234,7 @@ void pulseCallback(const std_msgs::Int8MultiArray::ConstPtr& input)
 			cloud_out->clear();
 			cloud_curb->clear();
 			cloud_sign->clear();
+			cloud_pole->clear();
 		}
 	}
 	
@@ -260,7 +249,7 @@ int main(int argc, char **argv)
 	ros::Subscriber sub_rear_curb = nh.subscribe("rear_curb_raw",2,rearCurbCloudCallback);
 	ros::Subscriber sub_sign = nh.subscribe("sign_points",2,signPointsCallback);
 	ros::Subscriber sub_marker = nh.subscribe("marker_points",2,markerPointsCallback);
-	ros::Subscriber sub_gps_pose = nh.subscribe("truth_pose",2,gpsPoseCallback);
+	ros::Subscriber sub_pole = nh.subscribe("stixel_cloud",2,poleCallback);
 
 	ros::NodeHandle pnh("~");
 	pnh.param<std::string>("map_path", map_path, "/home/wlh/map/oriented_point_map/");
