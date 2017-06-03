@@ -57,6 +57,12 @@ add_executable (sync_lidar_calibration src/sync_calibration.cpp)
 target_link_libraries(sync_lidar_calibration ${catkin_LIBRARIES})
 target_link_libraries(sync_lidar_calibration ${PCL_LIBRARIES})
 
+add_executable (talker src/talker.cpp)
+target_link_libraries(talker ${catkin_LIBRARIES})
+
+add_executable (listener src/listener.cpp)
+target_link_libraries(listener ${catkin_LIBRARIES})
+
 #install(DIRECTORY include/${PROJECT_NAME}/
 #  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
 #  FILES_MATCHING PATTERN "*.h"
