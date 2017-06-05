@@ -50,6 +50,8 @@ namespace lidar_detection
 
         void toRingArray();
 
+        pcl::PointCloud<PointXYZIR> getOneRing(int idx);
+
         pcl::PointCloud<pcl::PointXYZRGB> toColorCloud();
 
     private:

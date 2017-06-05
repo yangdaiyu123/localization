@@ -11,7 +11,7 @@ namespace lidar_detection
 {
     namespace operation
     {
-        template <typename PointT1, typename PointT2> void assignXYZ(PointT1 src, PointT2 dst)
+        template <typename PointT1, typename PointT2> void assignXYZ(PointT1 src, PointT2 &dst)
         {
             dst.x = src.x;
             dst.y = src.y;

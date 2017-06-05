@@ -25,6 +25,11 @@ namespace lidar_detection
         ring_array_.resize(ring_max+1);
     }
 
+    pcl::PointCloud<PointXYZIR> PointCloudRing::getOneRing(int idx)
+    {
+        return ring_array_[idx];
+    }
+
     pcl::PointCloud<pcl::PointXYZRGB> PointCloudRing::toColorCloud()
     {
         pcl::PointCloud<pcl::PointXYZRGB> color_cloud;

@@ -38,13 +38,14 @@ include_directories(
   include ${roscpp_INCLUDE_DIRS}
 )
 
-add_library(lidar_detection src/lidar_detection.cpp src/lidar_data_type.cpp include/lidar_detection/basic_operate.h)
+add_library(lidar_detection src/lidar_detection.cpp src/lidar_data_type.cpp include/lidar_detection/basic_operate.h include/lidar_detection/basic_math.h)
 target_link_libraries(lidar_detection ${catkin_LIBRARIES})
 target_link_libraries(lidar_detection ${PCL_LIBRARIES})
 
 add_executable(lidar_detection_test src/lib_test.cpp)
-target_link_libraries(lidar_detection ${catkin_LIBRARIES})
-target_link_libraries(lidar_detection ${PCL_LIBRARIES})
+target_link_libraries(lidar_detection_test ${catkin_LIBRARIES})
+target_link_libraries(lidar_detection_test ${PCL_LIBRARIES})
+target_link_libraries(lidar_detection_test lidar_detection)
 
 #############
 ## Install ##
