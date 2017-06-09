@@ -65,10 +65,10 @@ int main(int argc, char **argv)
     ros::NodeHandle nh;
 
     ros::NodeHandle pnh("~");
-    pnh.param<std::string>("pub_topic_pose", pub_topic_pose, "gps_pose");
+    pnh.param<std::string>("pub_topic_pose", pub_topic_pose, "rtk_pose");
     pnh.param<std::string>("sub_topic_gps", sub_topic_gps, "gps_filtered");
     pnh.param<std::string>("sub_topic_yaw", sub_topic_yaw, "yaw_filtered");
-    pnh.param<std::string>("pose_frame_id", pose_frame_id, "pose_frame");
+    pnh.param<std::string>("pose_frame_id", pose_frame_id, "base_link");
     pnh.param("origin_lat", origin_lat, 31.0);
     pnh.param("origin_lon", origin_lon, 121.0);
 
