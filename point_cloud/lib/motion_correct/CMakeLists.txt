@@ -56,6 +56,9 @@ add_library(motion_correct src/motion_correct.cpp)
 add_executable(motion_correct_node src/motion_correct_node.cpp)
 target_link_libraries(motion_correct_node ${catkin_LIBRARIES})
 
+add_executable(lidar_gps_sync src/lidar_gps_sync.cpp)
+target_link_libraries(lidar_gps_sync ${catkin_LIBRARIES})
+
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h"

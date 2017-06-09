@@ -188,7 +188,7 @@ void pointCloudCallback(const VPointCloud::ConstPtr &inMsg)
     fifo_size.push_back(cloud_corrected2.size());
     cloud_sum = cloud_sum + cloud_corrected2;
 
-    if (fifo_size.size()>10)
+    if (fifo_size.size()>30)
     {
         cloud_sum.erase(cloud_sum.begin(), cloud_sum.begin() + fifo_size[0]);
         fifo_size.erase(fifo_size.begin());
@@ -200,8 +200,9 @@ void pointCloudCallback(const VPointCloud::ConstPtr &inMsg)
     pcl::toROSMsg(sing_scan,cloud_to_pub);
     pub_scan.publish(cloud_to_pub);
 
-    cloud_sum.header.frame_id = "base_link";
-    pcl::toROSMsg(cloud_sum, cloud_to_pub);
+    cloud_corrected.header.frame_id = "base_link";
+    cloud_corrected.header.stamp = inMsg->header.stamp;
+    pcl::toROSMsg(cloud_corrected, cloud_to_pub);
     pub_correct.publish(cloud_to_pub);
 
 }
@@ -254,7 +255,7 @@ int main(int argc, char **argv)
     ros::Subscriber sub_front_curb = nh.subscribe("points_in_base_link",2,pointCloudCallback);
     ros::Subscriber sub_pulse = nh.subscribe("pulse", 2, pulseCallback);
     ros::Subscriber sub_imu = nh.subscribe("imu_torso/xsens/data", 2, imuCallback);
-    ros::Subscriber sub_rtk = nh.subscribe("rtk_pose", 2, rtkPoseCallback);
+    ros::Subscriber sub_rtk = nh.subscribe("fusion_pose", 2, rtkPoseCallback);
     pub_scan = nh.advertise<sensor_msgs::PointCloud2>("single_scan", 2);
     pub_correct = nh.advertise<sensor_msgs::PointCloud2>("corrected_scan", 2);
     pub_imu_pitch = nh.advertise<std_msgs::Float64>("pitch_deg",2);
