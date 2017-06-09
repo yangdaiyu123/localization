@@ -185,6 +185,7 @@ void lidarCloudCallback(const sensor_msgs::PointCloud2::ConstPtr& input)
 	cloud_filtered->header.frame_id = "base_link";
 	sensor_msgs::PointCloud2 cloud_to_pub;
     pcl::toROSMsg(*cloud_filtered, cloud_to_pub);
+	cloud_to_pub.header.stamp = input->header.stamp;
     pub_cloud.publish(cloud_to_pub);
 }
 
@@ -195,7 +196,7 @@ int main(int argc, char **argv)
 	ros::init(argc, argv, "points_to_stixel");
 	ros::NodeHandle nh;
 
-	ros::Subscriber sub_lidar =  nh.subscribe("points_in_base_link", 2, &lidarCloudCallback);
+	ros::Subscriber sub_lidar =  nh.subscribe("corrected_scan", 2, &lidarCloudCallback);
 	pub_cloud = nh.advertise<sensor_msgs::PointCloud2>("stixel_cloud",2);
     
 	ros::spin();

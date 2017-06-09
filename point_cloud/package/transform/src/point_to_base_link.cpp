@@ -80,7 +80,7 @@ void synCurbCallback(const sensor_msgs::PointCloud2::ConstPtr& front_cloud_in,
 	pass.setFilterFieldName("z");
 	pass.setFilterLimits(-0.5,0.6);
 	pass.filter(*cloud_front);
-	
+
 	pass.setInputCloud(cloud_rear);
 	pass.setFilterFieldName("y");
 	pass.setFilterLimits(-10,10);
@@ -97,6 +97,15 @@ void synCurbCallback(const sensor_msgs::PointCloud2::ConstPtr& front_cloud_in,
 	pass.setFilterLimits(4,7);
 	pass.filter(*cloud_top);
 
+	pass.setInputCloud(cloud_sum);
+	pass.setFilterFieldName("y");
+	pass.setFilterLimits(-20,20);
+	pass.filter(*cloud_sum);
+	pass.setFilterFieldName("x");
+	pass.setFilterLimits(-10,10);
+	pass.filter(*cloud_sum);
+
+
 	cloud_front->header.frame_id = "base_link";
 	cloud_rear->header.frame_id = "base_link";
 	cloud_top->header.frame_id = "base_link";
@@ -112,7 +121,8 @@ void synCurbCallback(const sensor_msgs::PointCloud2::ConstPtr& front_cloud_in,
 
     pcl::toROSMsg(*cloud_top, cloud_to_pub);
     pub_top.publish(cloud_to_pub);
-    
+
+    cloud_to_pub.header.stamp = front_cloud_in->header.stamp;
     pcl::toROSMsg(*cloud_sum, cloud_to_pub);
     pub_sum.publish(cloud_to_pub);
 }
